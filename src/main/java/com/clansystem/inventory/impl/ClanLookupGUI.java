@@ -4,16 +4,21 @@ import com.clansystem.ClanSystem;
 import com.clansystem.data.Clan;
 import com.clansystem.inventory.InventoryButton;
 import com.clansystem.inventory.InventoryGUI;
+import com.clansystem.util.ColorUtil;
 import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ClanLookupGUI extends InventoryGUI {
     private final ClanSystem plugin;
@@ -31,10 +36,11 @@ public class ClanLookupGUI extends InventoryGUI {
         int totalPages = (int) Math.ceil((double) allClans.size() / CLANS_PER_PAGE);
         if (totalPages == 0) totalPages = 1;
         
-        String title = ChatColor.translateAlternateColorCodes('&',
-            plugin.getMessageManager().getMessage("gui.lookup-title")
-                .replace("{page}", String.valueOf(page))
-                .replace("{pages}", String.valueOf(totalPages)));
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("page", String.valueOf(page));
+        placeholders.put("pages", String.valueOf(totalPages));
+        
+        String title = plugin.getMessageManager().getMessage("gui.lookup-title", placeholders);
         return Bukkit.createInventory(null, 54, title);
     }
     
@@ -96,17 +102,18 @@ public class ClanLookupGUI extends InventoryGUI {
         int level = plugin.getLevelManager().calculateLevel(clan);
         String tag = plugin.getLevelManager().getClanTag(clan);
         
-        ItemStack item = XMaterial.matchXMaterial("BANNER").map(XMaterial::parseItem).orElse(new ItemStack(org.bukkit.Material.WHITE_BANNER));
+        ItemStack item = XMaterial.matchXMaterial("BANNER").map(XMaterial::parseItem)
+            .orElse(new ItemStack(Material.WHITE_BANNER));
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&b" + clan.getName()));
+        meta.setDisplayName(ColorUtil.colorize("&#3498DB" + clan.getName()));
         
         List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.translateAlternateColorCodes('&', "&7Level: &f" + level));
-        lore.add(ChatColor.translateAlternateColorCodes('&', "&7Tag: " + tag));
-        lore.add(ChatColor.translateAlternateColorCodes('&', "&7Members: &f" + clan.getMemberCount()));
-        lore.add(ChatColor.translateAlternateColorCodes('&', "&7Kills: &f" + clan.getTotalKills()));
+        lore.add(ColorUtil.colorize("&#95A5A6Level: &f" + level));
+        lore.add(ColorUtil.colorize("&#95A5A6Tag: " + tag));
+        lore.add(ColorUtil.colorize("&#95A5A6Members: &f" + clan.getMemberCount()));
+        lore.add(ColorUtil.colorize("&#95A5A6Kills: &f" + clan.getTotalKills()));
         lore.add("");
-        lore.add(ChatColor.translateAlternateColorCodes('&', "&eClick for more info"));
+        lore.add(ColorUtil.colorize("&#F1C40FClick for more info"));
         
         meta.setLore(lore);
         item.setItemMeta(meta);
@@ -143,14 +150,19 @@ public class ClanLookupGUI extends InventoryGUI {
     }
     
     private ItemStack createItem(String materialName, String name, String... lore) {
-        ItemStack item = XMaterial.matchXMaterial(materialName).map(XMaterial::parseItem).orElse(new ItemStack(org.bukkit.Material.STONE));
+        ItemStack item = XMaterial.matchXMaterial(materialName).map(XMaterial::parseItem)
+            .orElse(new ItemStack(Material.STONE));
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
+        meta.setDisplayName(ColorUtil.colorize(name));
+        
         if (lore.length > 0) {
-            meta.setLore(Arrays.stream(lore)
-                .map(line -> ChatColor.translateAlternateColorCodes('&', line))
-                .toList());
+            List<String> loreList = new ArrayList<>();
+            for (String line : lore) {
+                loreList.add(ColorUtil.colorize(line));
+            }
+            meta.setLore(loreList);
         }
+        
         item.setItemMeta(meta);
         return item;
     }

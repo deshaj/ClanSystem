@@ -82,12 +82,17 @@ public class ClanStatsGUI extends InventoryGUI {
     }
     
     private ItemStack createItem(String materialName, String name, String... lore) {
-        ItemStack item = XMaterial.matchXMaterial(materialName).map(XMaterial::parseItem).orElse(new ItemStack(org.bukkit.Material.STONE));
+        ItemStack item = XMaterial.matchXMaterial(materialName).map(XMaterial::parseItem)
+            .orElse(new ItemStack(Material.STONE));
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-        meta.setLore(Arrays.stream(lore)
-            .map(line -> ChatColor.translateAlternateColorCodes('&', line))
-            .toList());
+        
+        List<String> loreList = new ArrayList<>();
+        for (String line : lore) {
+            loreList.add(ColorUtil.colorize(line));
+        }
+        
+        meta.setDisplayName(ColorUtil.colorize(name));
+        meta.setLore(loreList);
         item.setItemMeta(meta);
         return item;
     }
