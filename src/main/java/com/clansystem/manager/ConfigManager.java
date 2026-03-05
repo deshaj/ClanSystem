@@ -17,6 +17,10 @@ public class ConfigManager {
         this.config = plugin.getConfig();
     }
     
+    public FileConfiguration getConfig() {
+        return config;
+    }
+
     public boolean debug() {
         return config.getBoolean("debug", false);
     }

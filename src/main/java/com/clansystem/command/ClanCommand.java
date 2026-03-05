@@ -143,6 +143,7 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         }
         Clan clan = plugin.getClanManager().createClan(player, name);
         plugin.getPlayerDataManager().setPlayerClan(player.getUniqueId(), clan.getId());
+        plugin.getSoundManager().play(player, "clan-create");
         plugin.getMessageManager().send(player, "clan.created", Map.of("clan", name));
     }
 
@@ -158,6 +159,7 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
             }
         }
         plugin.getClanManager().disbandClan(clan.getId());
+        plugin.getSoundManager().play(player, "clan-disband");
         plugin.getMessageManager().send(player, "clan.disbanded", Map.of("clan", clanName));
     }
 
@@ -170,6 +172,8 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         if (plugin.getClanManager().getPlayerClan(target.getUniqueId()) != null) { plugin.getMessageManager().send(player, "invite.already-member"); return; }
         if (clan.getMemberCount() >= plugin.getConfigManager().maxMembers()) { plugin.getMessageManager().send(player, "clan.clan-full"); return; }
         plugin.getPlayerDataManager().addInvitation(target.getUniqueId(), clan.getId());
+        plugin.getSoundManager().play(player, "invite-send");
+        plugin.getSoundManager().play(target, "invite-receive");
         plugin.getMessageManager().send(player, "invite.sent", Map.of("player", target.getName()));
         plugin.getMessageManager().send(target, "invite.received", Map.of("clan", clan.getName()));
     }
@@ -182,6 +186,7 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         if (clan.getMemberCount() >= plugin.getConfigManager().maxMembers()) { plugin.getMessageManager().send(player, "clan.clan-full"); return; }
         plugin.getClanManager().addMember(clan, player, ClanRank.MEMBER);
         plugin.getPlayerDataManager().removeInvitation(player.getUniqueId(), clan.getId());
+        plugin.getSoundManager().play(player, "clan-join");
         plugin.getMessageManager().send(player, "clan.joined", Map.of("clan", clan.getName()));
     }
 
@@ -190,6 +195,7 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         if (clan == null) { plugin.getMessageManager().send(player, "clan.not-in-clan"); return; }
         if (clan.isOwner(player.getUniqueId())) { plugin.getMessageManager().send(player, "clan.owner-cannot-leave"); return; }
         plugin.getClanManager().removeMember(clan, player.getUniqueId());
+        plugin.getSoundManager().play(player, "clan-leave");
         plugin.getMessageManager().send(player, "clan.left", Map.of("clan", clan.getName()));
     }
 
@@ -212,6 +218,8 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         if (targetUUID == null) { plugin.getMessageManager().send(player, "clan.player-not-found"); return; }
         if (clan.isOwner(targetUUID)) { plugin.getMessageManager().send(player, "member.cannot-kick-owner"); return; }
         plugin.getClanManager().removeMember(clan, targetUUID);
+        plugin.getSoundManager().play(player, "clan-kick");
+        if (target != null) plugin.getSoundManager().play(target, "clan-kick");
         plugin.getMessageManager().send(player, "member.kicked", Map.of("player", targetName));
         if (target != null) plugin.getMessageManager().send(target, "clan.kicked", Map.of("clan", clan.getName()));
     }
@@ -226,6 +234,7 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
             return;
         }
         plugin.getHomeManager().teleportHome(player, clan);
+        plugin.getSoundManager().play(player, "home-teleport");
         plugin.getMessageManager().send(player, "home.teleporting");
     }
 
@@ -234,6 +243,7 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         if (clan == null) { plugin.getMessageManager().send(player, "clan.not-in-clan"); return; }
         if (!clan.canManageMembers(player.getUniqueId())) { plugin.getMessageManager().send(player, "clan.only-owner-mod"); return; }
         plugin.getHomeManager().setHome(clan, player.getLocation());
+        plugin.getSoundManager().play(player, "home-set");
         plugin.getMessageManager().send(player, "home.set");
     }
 
@@ -242,6 +252,7 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         if (clan == null) { plugin.getMessageManager().send(player, "clan.not-in-clan"); return; }
         if (!clan.canManageMembers(player.getUniqueId())) { plugin.getMessageManager().send(player, "clan.only-owner-mod"); return; }
         plugin.getHomeManager().deleteHome(clan);
+        plugin.getSoundManager().play(player, "home-delete");
         plugin.getMessageManager().send(player, "home.deleted");
     }
 
@@ -250,8 +261,10 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         if (clan == null) { plugin.getMessageManager().send(player, "clan.not-in-clan"); return; }
         plugin.getClanChatManager().toggleClanChat(player.getUniqueId());
         if (plugin.getClanChatManager().isClanChatEnabled(player.getUniqueId())) {
+            plugin.getSoundManager().play(player, "chat-toggle-on");
             plugin.getMessageManager().send(player, "chat.enabled");
         } else {
+            plugin.getSoundManager().play(player, "chat-toggle-off");
             plugin.getMessageManager().send(player, "chat.disabled");
         }
     }

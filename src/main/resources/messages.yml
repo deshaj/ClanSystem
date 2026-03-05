@@ -14,7 +14,9 @@ icons:
 
 clan:
   create: '{icon_success} &#2ECC71Created clan &f{clan}&#2ECC71!'
+  created: '{icon_success} &#2ECC71Created clan &f{clan}&#2ECC71!'
   disband: '{icon_success} &#E74C3CDisbanded clan &f{clan}&#E74C3C!'
+  disbanded: '{icon_success} &#E74C3CDisbanded clan &f{clan}&#E74C3C!'
   joined: '{icon_success} &#2ECC71You joined &f{clan}&#2ECC71!'
   left: '{icon_info} &#95A5A6You left &f{clan}&#95A5A6.'
   kicked: '{icon_error} &#E74C3CYou were kicked from &f{clan}&#E74C3C!'
@@ -23,6 +25,7 @@ clan:
   not-in-clan: '{icon_error} &#E74C3CYou are not in a clan!'
   clan-exists: '{icon_error} &#E74C3CA clan with that name already exists!'
   clan-not-found: '{icon_error} &#E74C3CClan not found!'
+  player-not-found: '{icon_error} &#E74C3CPlayer not found!'
   name-too-short: '{icon_error} &#E74C3CClan name must be at least {min} characters!'
   name-too-long: '{icon_error} &#E74C3CClan name must be at most {max} characters!'
   clan-full: '{icon_error} &#E74C3CThat clan is full!'
@@ -30,6 +33,15 @@ clan:
   no-permission: '{icon_error} &#E74C3CYou don''t have permission to do that!'
   only-owner: '{icon_error} &#E74C3COnly the clan owner can do that!'
   only-owner-mod: '{icon_error} &#E74C3COnly the owner or moderators can do that!'
+  owner-cannot-leave: '{icon_error} &#E74C3CThe owner cannot leave the clan! Use &#F1C40F/clan disband &#E74C3Cinstead.'
+  unknown-command: '{icon_error} &#E74C3CUnknown command! Use &#F1C40F/clan help &#E74C3Cfor available commands.'
+  
+  usage-create: '{icon_info} &#F39C12Usage: &#F1C40F/clan create <name>'
+  usage-invite: '{icon_info} &#F39C12Usage: &#F1C40F/clan invite <player>'
+  usage-join: '{icon_info} &#F39C12Usage: &#F1C40F/clan join <clan>'
+  usage-kick: '{icon_info} &#F39C12Usage: &#F1C40F/clan kick <player>'
+  usage-promote: '{icon_info} &#F39C12Usage: &#F1C40F/clan promote <player>'
+  usage-demote: '{icon_info} &#F39C12Usage: &#F1C40F/clan demote <player>'
   
 invite:
   sent: '{icon_success} &#2ECC71Invited &f{player} &#2ECC71to your clan!'
@@ -51,10 +63,14 @@ chat:
   
 member:
   promoted: '{icon_success} &#2ECC71{player} was promoted to &f{rank}&#2ECC71!'
+  you-promoted: '{icon_success} &#2ECC71You were promoted to &f{rank} &#2ECC71in &f{clan}&#2ECC71!'
   demoted: '{icon_success} &#2ECC71{player} was demoted to &f{rank}&#2ECC71!'
+  you-demoted: '{icon_success} &#E67E22You were demoted to &f{rank} &#E67E22in &f{clan}&#E67E22.'
   kicked: '{icon_success} &#2ECC71{player} was kicked from the clan!'
   cannot-kick-owner: '{icon_error} &#E74C3CYou cannot kick the clan owner!'
   cannot-promote-owner: '{icon_error} &#E74C3CThe owner cannot be promoted!'
+  cannot-demote-owner: '{icon_error} &#E74C3CYou cannot demote the clan owner!'
+  already-owner: '{icon_error} &#E74C3CThat player is already the owner!'
   already-max-rank: '{icon_error} &#E74C3CThat player is already at the maximum rank!'
   already-min-rank: '{icon_error} &#E74C3CThat player is already at the minimum rank!'
   

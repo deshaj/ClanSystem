@@ -40,3 +40,35 @@ level:
     10:
       required-kills: 5000
       tag: '&b&l[✪ Clan ✪]'
+
+sounds:
+  enabled: true
+  
+  clan-create: ENTITY_PLAYER_LEVELUP
+  clan-disband: ENTITY_WITHER_DEATH
+  clan-join: ENTITY_EXPERIENCE_ORB_PICKUP
+  clan-leave: BLOCK_IRON_DOOR_CLOSE
+  clan-kick: ENTITY_VILLAGER_NO
+  
+  invite-send: BLOCK_NOTE_BLOCK_PLING
+  invite-receive: BLOCK_NOTE_BLOCK_BELL
+  
+  promote: ENTITY_PLAYER_LEVELUP
+  demote: BLOCK_ANVIL_LAND
+  
+  home-teleport: ENTITY_ENDERMAN_TELEPORT
+  home-set: BLOCK_BEACON_ACTIVATE
+  home-delete: BLOCK_FIRE_EXTINGUISH
+  
+  chat-toggle-on: BLOCK_NOTE_BLOCK_CHIME
+  chat-toggle-off: BLOCK_NOTE_BLOCK_BASS
+  
+  gui-open: BLOCK_CHEST_OPEN
+  gui-click: UI_BUTTON_CLICK
+  gui-close: BLOCK_CHEST_CLOSE
+  gui-error: ENTITY_VILLAGER_NO
+  
+  level-up: ENTITY_PLAYER_LEVELUP
+  
+  error: ENTITY_VILLAGER_NO
+  success: ENTITY_EXPERIENCE_ORB_PICKUP

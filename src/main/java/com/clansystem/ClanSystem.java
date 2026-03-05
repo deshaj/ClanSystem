@@ -16,6 +16,7 @@ public final class ClanSystem extends JavaPlugin {
     
     private ConfigManager configManager;
     private MessageManager messageManager;
+    private SoundManager soundManager;
     private ClanManager clanManager;
     private PlayerDataManager playerDataManager;
     private ClanChatManager clanChatManager;
@@ -29,6 +30,7 @@ public final class ClanSystem extends JavaPlugin {
         
         this.configManager = new ConfigManager(this);
         this.messageManager = new MessageManager(this);
+        this.soundManager = new SoundManager(this);
         this.playerDataManager = new PlayerDataManager(this);
         this.clanManager = new ClanManager(this);
         this.clanChatManager = new ClanChatManager();
