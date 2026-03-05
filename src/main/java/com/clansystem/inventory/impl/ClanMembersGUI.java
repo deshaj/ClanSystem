@@ -5,19 +5,21 @@ import com.clansystem.data.Clan;
 import com.clansystem.data.ClanMember;
 import com.clansystem.inventory.InventoryButton;
 import com.clansystem.inventory.InventoryGUI;
+import com.clansystem.util.ColorUtil;
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.profiles.builder.XSkull;
 import com.cryptomorin.xseries.profiles.objects.Profileable;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ClanMembersGUI extends InventoryGUI {
     private final ClanSystem plugin;
@@ -30,8 +32,7 @@ public class ClanMembersGUI extends InventoryGUI {
     
     @Override
     protected Inventory createInventory() {
-        String title = ChatColor.translateAlternateColorCodes('&',
-            plugin.getMessageManager().getMessage("gui.members-title"));
+        String title = plugin.getMessageManager().getMessage("gui.members-title");
         return Bukkit.createInventory(null, 54, title);
     }
     
@@ -66,7 +67,11 @@ public class ClanMembersGUI extends InventoryGUI {
         }
         
         addButton(49, new InventoryButton()
-            .creator(p -> createItem("ARROW", "&cBack", "&7Return to main menu"))
+            .creator(p -> {
+                String name = plugin.getMessageManager().getMessage("gui.items.back.name");
+                List<String> lore = plugin.getMessageManager().getLore("gui.items.back.lore");
+                return createItemWithLore("ARROW", name, lore);
+            })
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
                 plugin.getGuiManager().openGUI(new ClanMainGUI(plugin, clan), clicker);
@@ -79,28 +84,32 @@ public class ClanMembersGUI extends InventoryGUI {
     private ItemStack createMemberHead(ClanMember member) {
         ItemStack skull = XSkull.createItem().profile(Profileable.username(member.getPlayerName())).apply();
         ItemMeta meta = skull.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-            "&b" + member.getPlayerName()));
         
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.translateAlternateColorCodes('&', "&7Rank: &f" + member.getRank().getDisplayName()));
-        lore.add(ChatColor.translateAlternateColorCodes('&', "&7Kills: &f" + member.getKills()));
-        lore.add(ChatColor.translateAlternateColorCodes('&', "&7Deaths: &f" + member.getDeaths()));
-        lore.add("");
-        lore.add(ChatColor.translateAlternateColorCodes('&', "&eClick to manage"));
+        double kd = member.getDeaths() > 0 ? 
+            Math.round((double) member.getKills() / member.getDeaths() * 100.0) / 100.0 : member.getKills();
         
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("player", member.getPlayerName());
+        placeholders.put("rank", member.getRank().getDisplayName());
+        placeholders.put("kills", String.valueOf(member.getKills()));
+        placeholders.put("deaths", String.valueOf(member.getDeaths()));
+        placeholders.put("kd", String.valueOf(kd));
+        
+        String name = plugin.getMessageManager().getMessage("gui.items.member-head.name", placeholders);
+        List<String> lore = plugin.getMessageManager().getLore("gui.items.member-head.lore", placeholders);
+        
+        meta.setDisplayName(name);
         meta.setLore(lore);
         skull.setItemMeta(meta);
         return skull;
     }
     
-    private ItemStack createItem(String materialName, String name, String... lore) {
-        ItemStack item = XMaterial.matchXMaterial(materialName).map(XMaterial::parseItem).orElse(new ItemStack(org.bukkit.Material.STONE));
+    private ItemStack createItemWithLore(String materialName, String name, List<String> lore) {
+        ItemStack item = XMaterial.matchXMaterial(materialName).map(XMaterial::parseItem)
+            .orElse(new ItemStack(Material.STONE));
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-        meta.setLore(Arrays.stream(lore)
-            .map(line -> ChatColor.translateAlternateColorCodes('&', line))
-            .toList());
+        meta.setDisplayName(name);
+        meta.setLore(lore);
         item.setItemMeta(meta);
         return item;
     }

@@ -4,15 +4,17 @@ import com.clansystem.ClanSystem;
 import com.clansystem.data.Clan;
 import com.clansystem.inventory.InventoryButton;
 import com.clansystem.inventory.InventoryGUI;
+import com.clansystem.util.ColorUtil;
 import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClanStatsGUI extends InventoryGUI {
     private final ClanSystem plugin;
@@ -25,8 +27,7 @@ public class ClanStatsGUI extends InventoryGUI {
     
     @Override
     protected Inventory createInventory() {
-        String title = ChatColor.translateAlternateColorCodes('&',
-            plugin.getMessageManager().getMessage("gui.stats-title"));
+        String title = plugin.getMessageManager().getMessage("gui.stats-title");
         return Bukkit.createInventory(null, 27, title);
     }
     

@@ -1,13 +1,15 @@
 package com.clansystem.manager;
 
 import com.clansystem.ClanSystem;
-import org.bukkit.ChatColor;
+import com.clansystem.util.ColorUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MessageManager {
@@ -64,14 +66,39 @@ public class MessageManager {
         for (Map.Entry<String, String> icon : icons.entrySet()) {
             message = message.replace("{" + icon.getKey() + "}", icon.getValue());
         }
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return ColorUtil.colorize(message);
     }
     
     public String getPrefix() {
-        return format(messages.getString("prefix", "&8[&bClan&8] &7"));
+        return format(messages.getString("prefix", "&#5DADE2[&#3498DBClan&#5DADE2] &7"));
     }
     
     public String getIcon(String name) {
         return format(icons.getOrDefault("icon_" + name, ""));
+    }
+    
+    public List<String> getLore(String path) {
+        List<String> rawLore = messages.getStringList(path);
+        if (rawLore.isEmpty()) return new ArrayList<>();
+        
+        List<String> formattedLore = new ArrayList<>();
+        for (String line : rawLore) {
+            formattedLore.add(format(line));
+        }
+        return formattedLore;
+    }
+    
+    public List<String> getLore(String path, Map<String, String> placeholders) {
+        List<String> rawLore = messages.getStringList(path);
+        if (rawLore.isEmpty()) return new ArrayList<>();
+        
+        List<String> formattedLore = new ArrayList<>();
+        for (String line : rawLore) {
+            for (Map.Entry<String, String> placeholder : placeholders.entrySet()) {
+                line = line.replace("{" + placeholder.getKey() + "}", placeholder.getValue());
+            }
+            formattedLore.add(format(line));
+        }
+        return formattedLore;
     }
 }
