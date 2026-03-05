@@ -1,0 +1,84 @@
+prefix: '&8[&bClan&8] &7'
+
+icons:
+  success: '&a✔'
+  error: '&c✖'
+  info: '&e⚑'
+  arrow: '&7→'
+  bullet: '&8•'
+  home: '&e⌂'
+  stats: '&6⚔'
+  members: '&b👥'
+  level: '&d★'
+
+clan:
+  created: '{icon_success} &aCreated clan &f{clan}&a!'
+  disbanded: '{icon_success} &cDisbanded clan &f{clan}&c!'
+  joined: '{icon_success} &aYou joined &f{clan}&a!'
+  left: '{icon_info} &7You left &f{clan}&7.'
+  kicked: '{icon_error} &cYou were kicked from &f{clan}&c!'
+  
+  already-in-clan: '{icon_error} &cYou are already in a clan!'
+  not-in-clan: '{icon_error} &cYou are not in a clan!'
+  clan-exists: '{icon_error} &cA clan with that name already exists!'
+  clan-not-found: '{icon_error} &cClan not found!'
+  name-too-short: '{icon_error} &cClan name must be at least {min} characters!'
+  name-too-long: '{icon_error} &cClan name must be at most {max} characters!'
+  clan-full: '{icon_error} &cThat clan is full!'
+  
+  no-permission: '{icon_error} &cYou don''t have permission to do that!'
+  only-owner: '{icon_error} &cOnly the clan owner can do that!'
+  only-owner-mod: '{icon_error} &cOnly the owner or moderators can do that!'
+  
+invite:
+  sent: '{icon_success} &aInvited &f{player} &ato your clan!'
+  received: '{icon_info} &7You were invited to &f{clan}&7! &a/clan join {clan}'
+  no-invitation: '{icon_error} &cYou don''t have an invitation from that clan!'
+  already-member: '{icon_error} &cThat player is already in a clan!'
+  
+home:
+  set: '{icon_home} &aClan home set!'
+  deleted: '{icon_success} &aClan home deleted!'
+  teleporting: '{icon_home} &7Teleporting to clan home...'
+  no-home: '{icon_error} &cYour clan doesn''t have a home set!'
+  cooldown: '{icon_error} &cPlease wait {time}s before teleporting again!'
+  
+chat:
+  enabled: '{icon_success} &aClan chat enabled!'
+  disabled: '{icon_info} &7Clan chat disabled.'
+  format: '&a[Clan] &f{player}&8: &7{message}'
+  
+member:
+  promoted: '{icon_success} &a{player} was promoted to &f{rank}&a!'
+  demoted: '{icon_success} &a{player} was demoted to &f{rank}&a!'
+  kicked: '{icon_success} &a{player} was kicked from the clan!'
+  cannot-kick-owner: '{icon_error} &cYou cannot kick the clan owner!'
+  cannot-promote-owner: '{icon_error} &cThe owner cannot be promoted!'
+  already-max-rank: '{icon_error} &cThat player is already at the maximum rank!'
+  already-min-rank: '{icon_error} &cThat player is already at the minimum rank!'
+  
+level:
+  up: '{icon_level} &dYour clan leveled up to level &f{level}&d! New tag: {tag}'
+  info: '&7Level &f{level} &8| &7Kills: &f{kills}&7/&f{required} {icon_arrow} &7Next: {next-tag}'
+  max: '&7Level &f{level} &8(&dMAX&8) &7Total Kills: &f{kills}'
+  
+info:
+  header: '&8&m          &r &b{clan} &8&m          '
+  owner: '&7Owner: &f{owner}'
+  members: '&7Members: &f{count}&7/&f{max}'
+  level: '&7Level: &f{level}'
+  tag: '&7Tag: {tag}'
+  stats: '&7Stats: &f{kills} &7kills, &f{deaths} &7deaths'
+  created: '&7Created: &f{date}'
+  
+list:
+  header: '&8&m     &r &bAll Clans &7({count}) &8&m     '
+  entry: '{icon_bullet} &f{clan} &8- &7Level {level} &8- &7{members} members'
+  
+gui:
+  main-title: '&8Clan Menu'
+  members-title: '&8Clan Members'
+  stats-title: '&8Clan Statistics'
+  lookup-title: '&8Browse Clans &7({page}/{pages})'
+  confirm-kick-title: '&8Confirm Kick'
+  promote-demote-title: '&8Manage {player}'

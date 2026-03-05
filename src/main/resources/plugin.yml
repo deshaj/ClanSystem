@@ -1,0 +1,15 @@
+name: ClanSystem
+version: 1.0.0
+main: com.clansystem.ClanSystem
+api-version: '1.21'
+author: ClanDev
+softdepend: [PlaceholderAPI]
+description: Complete GUI-based clan system with ranks, homes, stats, and leveling
+commands:
+  clan:
+    description: Main clan command
+    aliases: [c]
+    usage: /clan <subcommand>
+  cc:
+    description: Toggle clan chat
+    usage: /cc

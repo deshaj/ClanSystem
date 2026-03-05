@@ -1,0 +1,42 @@
+debug: false
+
+clan:
+  max-name-length: 16
+  min-name-length: 3
+  max-members: 10
+  home-cooldown: 5
+  
+level:
+  enabled: true
+  
+  levels:
+    1:
+      required-kills: 0
+      tag: '&7[Clan]'
+    2:
+      required-kills: 50
+      tag: '&f[Clan]'
+    3:
+      required-kills: 150
+      tag: '&a[Clan]'
+    4:
+      required-kills: 300
+      tag: '&e[Clan]'
+    5:
+      required-kills: 500
+      tag: '&6[Clan]'
+    6:
+      required-kills: 800
+      tag: '&c[Clan]'
+    7:
+      required-kills: 1200
+      tag: '&4[Clan]'
+    8:
+      required-kills: 1700
+      tag: '&5[Clan]'
+    9:
+      required-kills: 2500
+      tag: '&d[Clan]'
+    10:
+      required-kills: 5000
+      tag: '&b&l[✪ Clan ✪]'
