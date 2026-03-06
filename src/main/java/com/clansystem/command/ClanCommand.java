@@ -141,10 +141,14 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
             plugin.getMessageManager().send(player, "clan.clan-exists");
             return;
         }
-        Clan clan = plugin.getClanManager().createClan(player, name);
-        plugin.getPlayerDataManager().setPlayerClan(player.getUniqueId(), clan.getId());
-        plugin.getSoundManager().play(player, "clan-create");
-        plugin.getMessageManager().send(player, "clan.created", Map.of("clan", name));
+        plugin.getClanManager().createClan(player, name).thenAccept(clan -> {
+            plugin.getPlayerDataManager().setPlayerClan(player.getUniqueId(), clan.getId());
+            plugin.getSoundManager().play(player, "clan-create");
+            plugin.getMessageManager().send(player, "clan.created", Map.of("clan", name));
+        }).exceptionally(ex -> {
+            plugin.error("Failed to create clan", ex);
+            return null;
+        });
     }
 
     private void handleDisband(Player player) {
@@ -182,12 +186,18 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         if (plugin.getClanManager().getPlayerClan(player.getUniqueId()) != null) { plugin.getMessageManager().send(player, "clan.already-in-clan"); return; }
         Clan clan = plugin.getClanManager().getClanByName(clanName);
         if (clan == null) { plugin.getMessageManager().send(player, "clan.clan-not-found"); return; }
-        if (!plugin.getPlayerDataManager().hasInvitation(player.getUniqueId(), clan.getId())) { plugin.getMessageManager().send(player, "invite.no-invitation"); return; }
         if (clan.getMemberCount() >= plugin.getConfigManager().maxMembers()) { plugin.getMessageManager().send(player, "clan.clan-full"); return; }
-        plugin.getClanManager().addMember(clan, player, ClanRank.MEMBER);
-        plugin.getPlayerDataManager().removeInvitation(player.getUniqueId(), clan.getId());
-        plugin.getSoundManager().play(player, "clan-join");
-        plugin.getMessageManager().send(player, "clan.joined", Map.of("clan", clan.getName()));
+        final Clan finalClan = clan;
+        plugin.getPlayerDataManager().hasInvitation(player.getUniqueId(), clan.getId()).thenAccept(hasInvite -> {
+            if (!hasInvite) { plugin.getMessageManager().send(player, "invite.no-invitation"); return; }
+            plugin.getClanManager().addMember(finalClan, player, ClanRank.MEMBER);
+            plugin.getPlayerDataManager().removeInvitation(player.getUniqueId(), finalClan.getId());
+            plugin.getSoundManager().play(player, "clan-join");
+            plugin.getMessageManager().send(player, "clan.joined", Map.of("clan", finalClan.getName()));
+        }).exceptionally(ex -> {
+            plugin.error("Failed to check invitation", ex);
+            return null;
+        });
     }
 
     private void handleLeave(Player player) {

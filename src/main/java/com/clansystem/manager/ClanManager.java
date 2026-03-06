@@ -4,35 +4,43 @@ import com.clansystem.ClanSystem;
 import com.clansystem.data.Clan;
 import com.clansystem.data.ClanMember;
 import com.clansystem.data.ClanRank;
-import com.clansystem.storage.ClansDataStorage;
+import com.clansystem.database.ClanRepository;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class ClanManager {
     private final ClanSystem plugin;
-    private final ClansDataStorage storage;
-    private final Map<UUID, Clan> clans = new HashMap<>();
-    private final Map<String, UUID> clansByName = new HashMap<>();
+    private final ClanRepository repository;
+    private final Map<UUID, Clan> clans = new ConcurrentHashMap<>();
+    private final Map<String, UUID> clansByName = new ConcurrentHashMap<>();
     
-    public ClanManager(ClanSystem plugin) {
+    public ClanManager(ClanSystem plugin, ClanRepository repository) {
         this.plugin = plugin;
-        this.storage = new ClansDataStorage(plugin);
+        this.repository = repository;
         loadClans();
     }
     
     private void loadClans() {
-        clans.clear();
-        clansByName.clear();
-        Map<UUID, Clan> loaded = storage.loadAllClans();
-        clans.putAll(loaded);
-        for (Clan clan : loaded.values()) {
-            clansByName.put(clan.getName().toLowerCase(), clan.getId());
-        }
+        plugin.log("Loading clans from database...");
+        repository.loadAllClans().thenAccept(loadedClans -> {
+            clans.clear();
+            clansByName.clear();
+            clans.putAll(loadedClans);
+            for (Clan clan : loadedClans.values()) {
+                clansByName.put(clan.getName().toLowerCase(), clan.getId());
+            }
+            plugin.log("Loaded " + clans.size() + " clans");
+        }).exceptionally(ex -> {
+            plugin.error("Failed to load clans", ex);
+            return null;
+        });
     }
     
-    public Clan createClan(Player owner, String name) {
+    public CompletableFuture<Clan> createClan(Player owner, String name) {
         UUID id = UUID.randomUUID();
         Clan clan = new Clan();
         clan.setId(id);
@@ -51,22 +59,28 @@ public class ClanManager {
         
         clans.put(id, clan);
         clansByName.put(name.toLowerCase(), id);
-        storage.saveClan(clan);
         
-        return clan;
+        plugin.debug("Created clan: " + name + " (Owner: " + owner.getName() + ")");
+        
+        return repository.saveClan(clan).thenApply(v -> clan);
     }
     
-    public void disbandClan(UUID clanId) {
+    public CompletableFuture<Void> disbandClan(UUID clanId) {
         Clan clan = clans.get(clanId);
-        if (clan != null) {
-            clansByName.remove(clan.getName().toLowerCase());
-            clans.remove(clanId);
-            storage.deleteClan(clanId);
-            
-            for (ClanMember member : clan.getMembers()) {
-                plugin.getPlayerDataManager().setPlayerClan(member.getPlayerUUID(), null);
-            }
+        if (clan == null) {
+            return CompletableFuture.completedFuture(null);
         }
+        
+        clansByName.remove(clan.getName().toLowerCase());
+        clans.remove(clanId);
+        
+        plugin.debug("Disbanded clan: " + clan.getName());
+        
+        for (ClanMember member : clan.getMembers()) {
+            plugin.getPlayerDataManager().setPlayerClan(member.getPlayerUUID(), null);
+        }
+        
+        return repository.deleteClan(clanId);
     }
     
     public Clan getClan(UUID id) {
@@ -79,7 +93,7 @@ public class ClanManager {
     }
     
     public Clan getPlayerClan(UUID playerUUID) {
-        UUID clanId = plugin.getPlayerDataManager().getPlayerClan(playerUUID);
+        UUID clanId = plugin.getPlayerDataManager().getPlayerClanSync(playerUUID);
         return clanId != null ? clans.get(clanId) : null;
     }
     
@@ -87,7 +101,7 @@ public class ClanManager {
         return clansByName.containsKey(name.toLowerCase());
     }
     
-    public void addMember(Clan clan, Player player, ClanRank rank) {
+    public CompletableFuture<Void> addMember(Clan clan, Player player, ClanRank rank) {
         ClanMember member = new ClanMember(
             player.getUniqueId(),
             player.getName(),
@@ -96,18 +110,25 @@ public class ClanManager {
             System.currentTimeMillis()
         );
         clan.getMembers().add(member);
-        plugin.getPlayerDataManager().setPlayerClan(player.getUniqueId(), clan.getId());
-        storage.saveClan(clan);
+        
+        plugin.debug("Added member " + player.getName() + " to clan " + clan.getName());
+        
+        return plugin.getPlayerDataManager().setPlayerClan(player.getUniqueId(), clan.getId())
+            .thenCompose(v -> repository.saveClan(clan));
     }
     
-    public void removeMember(Clan clan, UUID playerUUID) {
+    public CompletableFuture<Void> removeMember(Clan clan, UUID playerUUID) {
         clan.removeMember(playerUUID);
-        plugin.getPlayerDataManager().setPlayerClan(playerUUID, null);
-        storage.saveClan(clan);
+        
+        plugin.debug("Removed member " + playerUUID + " from clan " + clan.getName());
+        
+        return plugin.getPlayerDataManager().setPlayerClan(playerUUID, null)
+            .thenCompose(v -> repository.saveClan(clan));
     }
     
-    public void updateClan(Clan clan) {
-        storage.saveClan(clan);
+    public CompletableFuture<Void> updateClan(Clan clan) {
+        plugin.debug("Updating clan: " + clan.getName());
+        return repository.saveClan(clan);
     }
     
     public Collection<Clan> getAllClans() {
@@ -120,33 +141,39 @@ public class ClanManager {
             .collect(Collectors.toList());
     }
     
-    public void promoteMember(Clan clan, UUID playerUUID) {
+    public CompletableFuture<Void> promoteMember(Clan clan, UUID playerUUID) {
         for (ClanMember member : clan.getMembers()) {
             if (member.getPlayerUUID().equals(playerUUID)) {
                 if (member.getRank() == ClanRank.MEMBER) {
                     member.setRank(ClanRank.MOD);
+                    plugin.debug("Promoted member " + playerUUID + " in clan " + clan.getName());
                 }
                 break;
             }
         }
-        storage.saveClan(clan);
+        return repository.saveClan(clan);
     }
 
-    public void demoteMember(Clan clan, UUID playerUUID) {
+    public CompletableFuture<Void> demoteMember(Clan clan, UUID playerUUID) {
         for (ClanMember member : clan.getMembers()) {
             if (member.getPlayerUUID().equals(playerUUID)) {
                 if (member.getRank() == ClanRank.MOD) {
                     member.setRank(ClanRank.MEMBER);
+                    plugin.debug("Demoted member " + playerUUID + " in clan " + clan.getName());
                 }
                 break;
             }
         }
-        storage.saveClan(clan);
+        return repository.saveClan(clan);
     }
 
-    public void saveAll() {
-        for (Clan clan : clans.values()) {
-            storage.saveClan(clan);
-        }
+    public CompletableFuture<Void> saveAll() {
+        plugin.log("Saving all clans...");
+        List<CompletableFuture<Void>> futures = clans.values().stream()
+            .map(repository::saveClan)
+            .collect(Collectors.toList());
+        
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+            .thenRun(() -> plugin.log("All clans saved successfully"));
     }
 }

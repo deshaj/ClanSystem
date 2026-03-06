@@ -1,6 +1,3 @@
 include:
-  - cloud-core
-  - cloud-services
-  - cloud-paper
-  - cloud-brigadier
-  - cloud-minecraft-extras
+  - folialib
+  - hikari-cp

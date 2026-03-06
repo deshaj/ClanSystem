@@ -12,72 +12,77 @@ public class SoundManager {
     }
     
     public void playSuccess(Player player) {
-        playSound(player, "sounds.success");
+        play(player, "success");
     }
     
     public void playError(Player player) {
-        playSound(player, "sounds.error");
+        play(player, "error");
     }
     
     public void playClick(Player player) {
-        playSound(player, "sounds.click");
+        play(player, "click");
     }
     
     public void playOpen(Player player) {
-        playSound(player, "sounds.open");
+        play(player, "open");
     }
     
     public void playJoin(Player player) {
-        playSound(player, "sounds.join");
+        play(player, "join");
     }
     
     public void playLeave(Player player) {
-        playSound(player, "sounds.leave");
+        play(player, "leave");
     }
     
     public void playKick(Player player) {
-        playSound(player, "sounds.kick");
+        play(player, "kick");
     }
     
     public void playPromote(Player player) {
-        playSound(player, "sounds.promote");
+        play(player, "promote");
     }
     
     public void playDemote(Player player) {
-        playSound(player, "sounds.demote");
+        play(player, "demote");
     }
     
     public void playLevelUp(Player player) {
-        playSound(player, "sounds.levelup");
+        play(player, "levelup");
     }
     
     public void playDisband(Player player) {
-        playSound(player, "sounds.disband");
+        play(player, "disband");
     }
     
     public void playTeleport(Player player) {
-        playSound(player, "sounds.teleport");
+        play(player, "teleport");
     }
     
     public void play(Player player, String key) {
-        playSound(player, "sounds." + key.replace("-", "."));
-    }
-
-    public void playSound(Player player, String path) {
         if (!plugin.getConfigManager().getConfig().getBoolean("sounds.enabled", true)) {
             return;
         }
         
-        String soundName = plugin.getConfigManager().getConfig().getString(path);
+        String soundPath = "sounds." + key;
+        String soundName = plugin.getConfigManager().getConfig().getString(soundPath);
+        
         if (soundName == null || soundName.equalsIgnoreCase("none")) {
+            plugin.debug("Sound not configured: " + key);
             return;
         }
         
-        float volume = (float) plugin.getConfigManager().getConfig().getDouble(path + "-volume", 1.0);
-        float pitch = (float) plugin.getConfigManager().getConfig().getDouble(path + "-pitch", 1.0);
+        float volume = (float) plugin.getConfigManager().getConfig().getDouble(soundPath + "-volume", 1.0);
+        float pitch = (float) plugin.getConfigManager().getConfig().getDouble(soundPath + "-pitch", 1.0);
         
-        XSound.matchXSound(soundName).ifPresent(sound -> 
-            sound.play(player, volume, pitch)
+        XSound.matchXSound(soundName).ifPresentOrElse(
+            sound -> {
+                plugin.getFoliaLib().getScheduler().runAtEntity(player, task -> {
+                    sound.play(player, volume, pitch);
+                });
+                plugin.debug("Played sound '" + soundName + "' for " + player.getName());
+            },
+            () -> plugin.warn("Invalid sound configured: " + soundName)
         );
     }
 }

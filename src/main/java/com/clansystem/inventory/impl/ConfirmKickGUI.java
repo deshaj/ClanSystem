@@ -51,12 +51,12 @@ public class ConfirmKickGUI extends InventoryGUI {
                 placeholders.put("player", targetMember.getPlayerName());
                 placeholders.put("clan", clan.getName());
                 plugin.getMessageManager().send(clicker, "member.kicked", placeholders);
-                plugin.getSoundManager().playSound(clicker, "kick");
+                plugin.getSoundManager().play(clicker, "kick");
                 
                 Player target = Bukkit.getPlayer(targetMember.getPlayerUUID());
                 if (target != null) {
                     plugin.getMessageManager().send(target, "clan.kicked", placeholders);
-                    plugin.getSoundManager().playSound(target, "kicked");
+                    plugin.getSoundManager().play(target, "kicked");
                 }
                 
                 clicker.closeInventory();
@@ -69,7 +69,7 @@ public class ConfirmKickGUI extends InventoryGUI {
                 "&7Go back"))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
-                plugin.getSoundManager().playSound(clicker, "gui-click");
+                plugin.getSoundManager().play(clicker, "gui-click");
                 plugin.getGuiManager().openGUI(new PromoteDemoteGUI(plugin, clan, targetMember), clicker);
             })
         );
