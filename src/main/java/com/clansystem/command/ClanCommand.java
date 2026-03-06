@@ -355,9 +355,13 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         if (targetUUID == null) { plugin.getMessageManager().send(player, "clan.player-not-found"); return; }
         if (clan.isOwner(targetUUID)) { plugin.getMessageManager().send(player, "member.already-owner"); return; }
         plugin.getClanManager().promoteMember(clan, targetUUID);
+        plugin.getSoundManager().playPromote(player);
         plugin.getMessageManager().send(player, "member.promoted", Map.of("player", targetName));
         Player target = Bukkit.getPlayer(targetUUID);
-        if (target != null) plugin.getMessageManager().send(target, "member.you-promoted", Map.of("clan", clan.getName()));
+        if (target != null) {
+            plugin.getSoundManager().playPromote(target);
+            plugin.getMessageManager().send(target, "member.you-promoted", Map.of("clan", clan.getName()));
+        }
     }
 
     private void handleDemote(Player player, String targetName) {
@@ -374,8 +378,12 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         if (targetUUID == null) { plugin.getMessageManager().send(player, "clan.player-not-found"); return; }
         if (clan.isOwner(targetUUID)) { plugin.getMessageManager().send(player, "member.cannot-demote-owner"); return; }
         plugin.getClanManager().demoteMember(clan, targetUUID);
+        plugin.getSoundManager().playDemote(player);
         plugin.getMessageManager().send(player, "member.demoted", Map.of("player", targetName));
         Player target = Bukkit.getPlayer(targetUUID);
-        if (target != null) plugin.getMessageManager().send(target, "member.you-demoted", Map.of("clan", clan.getName()));
+        if (target != null) {
+            plugin.getSoundManager().playDemote(target);
+            plugin.getMessageManager().send(target, "member.you-demoted", Map.of("clan", clan.getName()));
+        }
     }
 }

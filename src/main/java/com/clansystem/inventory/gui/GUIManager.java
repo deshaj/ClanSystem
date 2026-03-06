@@ -1,5 +1,6 @@
 package com.clansystem.inventory.gui;
 
+import com.clansystem.ClanSystem;
 import com.clansystem.inventory.InventoryGUI;
 import com.clansystem.inventory.InventoryHandler;
 import org.bukkit.entity.Player;
@@ -12,7 +13,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GUIManager {
+    private final ClanSystem plugin;
     private final Map<Inventory, InventoryHandler> activeInventories = new HashMap<>();
+    
+    public GUIManager(ClanSystem plugin) {
+        this.plugin = plugin;
+    }
     
     public void openGUI(InventoryGUI gui, Player player) {
         this.registerHandledInventory(gui.getInventory(), gui);
@@ -30,6 +36,8 @@ public class GUIManager {
     public void handleClick(InventoryClickEvent event) {
         InventoryHandler handler = this.activeInventories.get(event.getInventory());
         if (handler != null) {
+            Player player = (Player) event.getWhoClicked();
+            plugin.getSoundManager().playClick(player);
             handler.onClick(event);
         }
     }
@@ -37,6 +45,8 @@ public class GUIManager {
     public void handleOpen(InventoryOpenEvent event) {
         InventoryHandler handler = this.activeInventories.get(event.getInventory());
         if (handler != null) {
+            Player player = (Player) event.getPlayer();
+            plugin.getSoundManager().playOpen(player);
             handler.onOpen(event);
         }
     }

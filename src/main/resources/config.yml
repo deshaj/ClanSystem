@@ -67,3 +67,15 @@ sounds:
   levelup: ENTITY_PLAYER_LEVELUP
   disband: ENTITY_WITHER_DEATH
   teleport: ENTITY_ENDERMAN_TELEPORT
+  clan-create: ENTITY_PLAYER_LEVELUP
+  clan-disband: ENTITY_WITHER_DEATH
+  clan-join: ENTITY_EXPERIENCE_ORB_PICKUP
+  clan-leave: BLOCK_IRON_DOOR_CLOSE
+  clan-kick: ENTITY_VILLAGER_NO
+  home-teleport: ENTITY_ENDERMAN_TELEPORT
+  home-set: BLOCK_NOTE_BLOCK_PLING
+  home-delete: BLOCK_FIRE_EXTINGUISH
+  chat-toggle-on: BLOCK_NOTE_BLOCK_PLING
+  chat-toggle-off: BLOCK_NOTE_BLOCK_BASS
+  invite-send: ENTITY_ARROW_HIT_PLAYER
+  invite-receive: ENTITY_EXPERIENCE_ORB_PICKUP

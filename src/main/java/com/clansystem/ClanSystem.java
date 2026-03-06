@@ -56,7 +56,7 @@ public final class ClanSystem extends JavaPlugin {
         this.clanChatManager = new ClanChatManager();
         this.homeManager = new HomeManager(this);
         this.levelManager = new LevelManager(this);
-        this.guiManager = new GUIManager();
+        this.guiManager = new GUIManager(this);
         
         registerListeners();
         registerCommands();
