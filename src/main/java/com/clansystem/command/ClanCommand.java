@@ -108,6 +108,27 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
                 if (args.length < 2) { plugin.getMessageManager().send(player, "clan.usage-demote"); return true; }
                 handleDemote(player, args[1]);
             }
+            case "pvp" -> {
+                if (!(sender instanceof Player player)) { sender.sendMessage("Only players."); return true; }
+                handlePvp(player);
+            }
+            case "admin" -> {
+                if (!sender.hasPermission("clansystem.admin")) {
+                    plugin.getMessageManager().send(sender, "clan.no-permission");
+                    return true;
+                }
+                if (args.length < 2) {
+                    sender.sendMessage("Usage: /clan admin <disband> [clan]");
+                    return true;
+                }
+                if (args[1].equalsIgnoreCase("disband")) {
+                    if (args.length < 3) {
+                        plugin.getMessageManager().send(sender, "clan.usage-admin-disband");
+                        return true;
+                    }
+                    handleAdminDisband(sender, args[2]);
+                }
+            }
             default -> plugin.getMessageManager().send(sender, "clan.unknown-command");
         }
         return true;
@@ -117,7 +138,28 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (command.getName().equalsIgnoreCase("cc")) return Collections.emptyList();
         if (args.length == 1) {
-            return Arrays.asList("create", "disband", "invite", "join", "leave", "kick", "home", "sethome", "delhome", "chat", "info", "list", "gui", "promote", "demote");
+            List<String> subcommands = new ArrayList<>(Arrays.asList("create", "disband", "invite", "join", "leave", "kick", "home", "sethome", "delhome", "chat", "info", "list", "gui", "promote", "demote", "pvp"));
+            if (sender.hasPermission("clansystem.admin")) {
+                subcommands.add("admin");
+            }
+            return subcommands;
+        }
+        if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("invite")) {
+                return Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getName)
+                    .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
+                    .toList();
+            }
+            if (args[0].equalsIgnoreCase("admin") && sender.hasPermission("clansystem.admin")) {
+                return Collections.singletonList("disband");
+            }
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("admin") && args[1].equalsIgnoreCase("disband")) {
+            return plugin.getClanManager().getAllClans().stream()
+                .map(Clan::getName)
+                .filter(name -> name.toLowerCase().startsWith(args[2].toLowerCase()))
+                .toList();
         }
         return Collections.emptyList();
     }
@@ -142,7 +184,6 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
             return;
         }
         plugin.getClanManager().createClan(player, name).thenAccept(clan -> {
-            plugin.getPlayerDataManager().setPlayerClan(player.getUniqueId(), clan.getId());
             plugin.getSoundManager().play(player, "clan-create");
             plugin.getMessageManager().send(player, "clan.created", Map.of("clan", name));
         }).exceptionally(ex -> {
@@ -180,6 +221,18 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
         plugin.getSoundManager().play(target, "invite-receive");
         plugin.getMessageManager().send(player, "invite.sent", Map.of("player", target.getName()));
         plugin.getMessageManager().send(target, "invite.received", Map.of("clan", clan.getName()));
+        
+        String clickableMessage = plugin.getMessageManager().getMessage("invite.received-clickable");
+        net.md_5.bungee.api.chat.TextComponent component = new net.md_5.bungee.api.chat.TextComponent(clickableMessage);
+        component.setClickEvent(new net.md_5.bungee.api.chat.ClickEvent(
+            net.md_5.bungee.api.chat.ClickEvent.Action.RUN_COMMAND, 
+            "/clan join " + clan.getName()
+        ));
+        component.setHoverEvent(new net.md_5.bungee.api.chat.HoverEvent(
+            net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT,
+            new net.md_5.bungee.api.chat.ComponentBuilder("Click to join " + clan.getName()).create()
+        ));
+        target.spigot().sendMessage(component);
     }
 
     private void handleJoin(Player player, String clanName) {
@@ -226,6 +279,7 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
             }
         }
         if (targetUUID == null) { plugin.getMessageManager().send(player, "clan.player-not-found"); return; }
+        if (targetUUID.equals(player.getUniqueId())) { plugin.getMessageManager().send(player, "member.cannot-kick-self"); return; }
         if (clan.isOwner(targetUUID)) { plugin.getMessageManager().send(player, "member.cannot-kick-owner"); return; }
         plugin.getClanManager().removeMember(clan, targetUUID);
         plugin.getSoundManager().play(player, "clan-kick");
@@ -335,10 +389,41 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
     private void handleGUI(Player player) {
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, 1), player);
+            if (plugin.getClanManager().getAllClans().isEmpty()) {
+                plugin.getMessageManager().send(player, "clan.no-clans-exist");
+            } else {
+                plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, 1), player);
+            }
         } else {
             plugin.getGuiManager().openGUI(new ClanMainGUI(plugin, clan), player);
         }
+    }
+
+    private void handlePvp(Player player) {
+        Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
+        if (clan == null) { plugin.getMessageManager().send(player, "clan.not-in-clan"); return; }
+        if (!clan.isOwner(player.getUniqueId())) { plugin.getMessageManager().send(player, "clan.only-owner"); return; }
+        clan.setPvpEnabled(!clan.isPvpEnabled());
+        plugin.getClanManager().updateClan(clan);
+        if (clan.isPvpEnabled()) {
+            plugin.getMessageManager().send(player, "clan.pvp-enabled");
+        } else {
+            plugin.getMessageManager().send(player, "clan.pvp-disabled");
+        }
+    }
+
+    private void handleAdminDisband(CommandSender sender, String clanName) {
+        Clan clan = plugin.getClanManager().getClanByName(clanName);
+        if (clan == null) { plugin.getMessageManager().send(sender, "clan.clan-not-found"); return; }
+        String name = clan.getName();
+        for (ClanMember member : clan.getMembers()) {
+            Player memberPlayer = Bukkit.getPlayer(member.getPlayerUUID());
+            if (memberPlayer != null) {
+                plugin.getMessageManager().send(memberPlayer, "clan.disbanded", Map.of("clan", name));
+            }
+        }
+        plugin.getClanManager().disbandClan(clan.getId());
+        plugin.getMessageManager().send(sender, "clan.admin-disbanded", Map.of("clan", name));
     }
 
     private void handlePromote(Player player, String targetName) {

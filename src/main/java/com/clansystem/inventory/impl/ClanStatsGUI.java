@@ -74,7 +74,7 @@ public class ClanStatsGUI extends InventoryGUI {
             .creator(p -> createItem("ARROW", "&cBack", "&7Return to main menu"))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
-                plugin.getGuiManager().openGUI(new ClanMainGUI(plugin, clan), clicker);
+                plugin.getGuiManager().openGUI(new ClanMainGUI(plugin, clan), clicker, false);
             })
         );
         

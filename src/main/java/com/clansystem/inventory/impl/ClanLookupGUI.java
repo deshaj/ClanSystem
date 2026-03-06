@@ -58,7 +58,7 @@ public class ClanLookupGUI extends InventoryGUI {
             int slot = i - startIndex;
             
             addButton(slot, new InventoryButton()
-                .creator(p -> createClanItem(clan))
+                .creator(p -> createClanItemForPlayer(p, clan))
                 .consumer(event -> {
                     Player clicker = (Player) event.getWhoClicked();
                     showClanInfo(clicker, clan);
@@ -106,6 +106,34 @@ public class ClanLookupGUI extends InventoryGUI {
             .orElse(new ItemStack(Material.WHITE_BANNER));
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(ColorUtil.colorize("&#3498DB" + clan.getName()));
+        
+        List<String> lore = new ArrayList<>();
+        lore.add(ColorUtil.colorize("&#95A5A6Level: &f" + level));
+        lore.add(ColorUtil.colorize("&#95A5A6Tag: " + tag));
+        lore.add(ColorUtil.colorize("&#95A5A6Members: &f" + clan.getMemberCount()));
+        lore.add(ColorUtil.colorize("&#95A5A6Kills: &f" + clan.getTotalKills()));
+        lore.add("");
+        lore.add(ColorUtil.colorize("&#F1C40FClick for more info"));
+        
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private ItemStack createClanItemForPlayer(Player player, Clan clan) {
+        int level = plugin.getLevelManager().calculateLevel(clan);
+        String tag = plugin.getLevelManager().getClanTag(clan);
+        
+        Clan playerClan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
+        boolean isOwnClan = playerClan != null && playerClan.getId().equals(clan.getId());
+        
+        String bannerMaterial = isOwnClan ? "LIME_BANNER" : "WHITE_BANNER";
+        ItemStack item = XMaterial.matchXMaterial(bannerMaterial).map(XMaterial::parseItem)
+            .orElse(new ItemStack(Material.WHITE_BANNER));
+        ItemMeta meta = item.getItemMeta();
+        
+        String displayName = isOwnClan ? "&#2ECC71" + clan.getName() + " &#2ECC71(Your Clan)" : "&#3498DB" + clan.getName();
+        meta.setDisplayName(ColorUtil.colorize(displayName));
         
         List<String> lore = new ArrayList<>();
         lore.add(ColorUtil.colorize("&#95A5A6Level: &f" + level));

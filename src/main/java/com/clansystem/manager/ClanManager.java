@@ -62,7 +62,9 @@ public class ClanManager {
         
         plugin.debug("Created clan: " + name + " (Owner: " + owner.getName() + ")");
         
-        return repository.saveClan(clan).thenApply(v -> clan);
+        return plugin.getPlayerDataManager().setPlayerClan(owner.getUniqueId(), id)
+            .thenCompose(v -> repository.saveClan(clan))
+            .thenApply(v -> clan);
     }
     
     public CompletableFuture<Void> disbandClan(UUID clanId) {

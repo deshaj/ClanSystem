@@ -13,6 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +91,17 @@ public class ClanMainGUI extends InventoryGUI {
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
                 if (clan.getHome() == null) {
-                    plugin.getMessageManager().send(clicker, "home.no-home");
+                    if (clan.canManageMembers(clicker.getUniqueId())) {
+                        plugin.getHomeManager().setHome(clan, clicker.getLocation());
+                        plugin.getMessageManager().send(clicker, "home.set-gui");
+                        plugin.getSoundManager().play(clicker, "home-set");
+                        clicker.closeInventory();
+                        plugin.getFoliaLib().getImpl().runLater(() -> {
+                            plugin.getGuiManager().openGUI(new ClanMainGUI(plugin, clan), clicker);
+                        }, 2L);
+                    } else {
+                        plugin.getMessageManager().send(clicker, "home.no-home");
+                    }
                     return;
                 }
                 if (plugin.getHomeManager().hasCooldown(clicker.getUniqueId())) {
@@ -105,6 +116,35 @@ public class ClanMainGUI extends InventoryGUI {
             })
         );
         
+        addButton(20, new InventoryButton()
+            .creator(p -> {
+                String name = plugin.getMessageManager().getMessage("gui.items.pvp.name");
+                if (clan.isPvpEnabled()) {
+                    return createItemWithLore("DIAMOND_SWORD", name,
+                        plugin.getMessageManager().getLore("gui.items.pvp.lore-enabled"));
+                } else {
+                    return createItemWithLore("WOODEN_SWORD", name,
+                        plugin.getMessageManager().getLore("gui.items.pvp.lore-disabled"));
+                }
+            })
+            .consumer(event -> {
+                Player clicker = (Player) event.getWhoClicked();
+                if (!clan.isOwner(clicker.getUniqueId())) {
+                    plugin.getMessageManager().send(clicker, "clan.only-owner");
+                    return;
+                }
+                clan.setPvpEnabled(!clan.isPvpEnabled());
+                plugin.getClanManager().updateClan(clan);
+                String messageKey = clan.isPvpEnabled() ? "pvp.enabled" : "pvp.disabled";
+                plugin.getMessageManager().send(clicker, messageKey);
+                plugin.getSoundManager().play(clicker, clan.isPvpEnabled() ? "success" : "error");
+                
+                plugin.getFoliaLib().getImpl().runLater(() -> {
+                    plugin.getGuiManager().openGUI(new ClanMainGUI(plugin, clan), clicker);
+                }, 2L);
+            })
+        );
+
         addButton(22, new InventoryButton()
             .creator(p -> {
                 String name = plugin.getMessageManager().getMessage("gui.items.lookup.name");
@@ -113,9 +153,22 @@ public class ClanMainGUI extends InventoryGUI {
             })
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
-                plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, 1), clicker);
+                plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, 1), clicker, false);
             })
         );
+        
+        if (clan.isOwner(player.getUniqueId())) {
+            addButton(26, new InventoryButton()
+                .creator(p -> createItemWithLore("TNT", 
+                    ColorUtil.colorize("&c&lDisband Clan"),
+                    List.of(ColorUtil.colorize("&7Click to disband your clan"), 
+                            ColorUtil.colorize("&c&lWarning: This cannot be undone!"))))
+                .consumer(event -> {
+                    Player clicker = (Player) event.getWhoClicked();
+                    plugin.getGuiManager().openGUI(new ConfirmDisbandGUI(plugin, clan), clicker, false);
+                })
+            );
+        }
         
         super.decorate(player);
     }

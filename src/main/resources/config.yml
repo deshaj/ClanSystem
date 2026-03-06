@@ -13,7 +13,7 @@ database:
     connection-timeout: 5000
 
 clan:
-  max-name-length: 16
+  max-name-length: 7
   min-name-length: 3
   max-members: 10
   home-cooldown: 5

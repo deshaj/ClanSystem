@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,22 @@ public class PlayerListener implements Listener {
     
     public PlayerListener(ClanSystem plugin) {
         this.plugin = plugin;
+    }
+    
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        plugin.getPlayerDataManager().getPlayerClan(player.getUniqueId()).thenAccept(clanId -> {
+            if (clanId != null) {
+                plugin.debug("Loaded clan data for " + player.getName() + ": " + clanId);
+            }
+        });
+    }
+    
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        plugin.getPlayerDataManager().clearCache(player.getUniqueId());
     }
     
     @EventHandler

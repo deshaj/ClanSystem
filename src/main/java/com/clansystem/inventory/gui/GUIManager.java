@@ -21,7 +21,14 @@ public class GUIManager {
     }
     
     public void openGUI(InventoryGUI gui, Player player) {
+        openGUI(gui, player, true);
+    }
+    
+    public void openGUI(InventoryGUI gui, Player player, boolean playSound) {
         this.registerHandledInventory(gui.getInventory(), gui);
+        if (playSound) {
+            plugin.getSoundManager().playOpen(player);
+        }
         player.openInventory(gui.getInventory());
     }
     
@@ -45,8 +52,6 @@ public class GUIManager {
     public void handleOpen(InventoryOpenEvent event) {
         InventoryHandler handler = this.activeInventories.get(event.getInventory());
         if (handler != null) {
-            Player player = (Player) event.getPlayer();
-            plugin.getSoundManager().playOpen(player);
             handler.onOpen(event);
         }
     }

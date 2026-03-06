@@ -61,7 +61,7 @@ public class ClanMembersGUI extends InventoryGUI {
                         return;
                     }
                     
-                    plugin.getGuiManager().openGUI(new PromoteDemoteGUI(plugin, clan, member), clicker);
+                    plugin.getGuiManager().openGUI(new PromoteDemoteGUI(plugin, clan, member), clicker, false);
                 })
             );
         }
@@ -74,7 +74,7 @@ public class ClanMembersGUI extends InventoryGUI {
             })
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
-                plugin.getGuiManager().openGUI(new ClanMainGUI(plugin, clan), clicker);
+                plugin.getGuiManager().openGUI(new ClanMainGUI(plugin, clan), clicker, false);
             })
         );
         

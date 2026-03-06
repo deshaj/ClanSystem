@@ -29,6 +29,7 @@ clan:
   name-too-short: '{icon_error} &#E74C3CClan name must be at least {min} characters!'
   name-too-long: '{icon_error} &#E74C3CClan name must be at most {max} characters!'
   clan-full: '{icon_error} &#E74C3CThat clan is full!'
+  no-clans-exist: '{icon_info} &#95A5A6No clans exist yet. Create one with &#F1C40F/clan create <name>'
   
   no-permission: '{icon_error} &#E74C3CYou don''t have permission to do that!'
   only-owner: '{icon_error} &#E74C3COnly the clan owner can do that!'
@@ -42,15 +43,18 @@ clan:
   usage-kick: '{icon_info} &#F39C12Usage: &#F1C40F/clan kick <player>'
   usage-promote: '{icon_info} &#F39C12Usage: &#F1C40F/clan promote <player>'
   usage-demote: '{icon_info} &#F39C12Usage: &#F1C40F/clan demote <player>'
+  usage-admin-disband: '{icon_info} &#F39C12Usage: &#F1C40F/clan admin disband <clan>'
   
 invite:
   sent: '{icon_success} &#2ECC71Invited &f{player} &#2ECC71to your clan!'
-  received: '{icon_info} &#95A5A6You were invited to &f{clan}&#95A5A6! &#2ECC71/clan join {clan}'
+  received: '&#95A5A6You were invited to &f{clan}&#95A5A6!'
+  received-clickable: '{icon_info} &#2ECC71[Click to Join]'
   no-invitation: '{icon_error} &#E74C3CYou don''t have an invitation from that clan!'
   already-member: '{icon_error} &#E74C3CThat player is already in a clan!'
   
 home:
   set: '{icon_home} &#2ECC71Clan home set!'
+  set-gui: '{icon_home} &#2ECC71Clan home set at your location!'
   deleted: '{icon_success} &#2ECC71Clan home deleted!'
   teleporting: '{icon_home} &#95A5A6Teleporting to clan home...'
   no-home: '{icon_error} &#E74C3CYour clan doesn''t have a home set!'
@@ -60,6 +64,10 @@ chat:
   enabled: '{icon_success} &#2ECC71Clan chat enabled!'
   disabled: '{icon_info} &#95A5A6Clan chat disabled.'
   format: '&#2ECC71[Clan] &f{player}&#95A5A6: &#ECF0F1{message}'
+
+pvp:
+  enabled: '{icon_success} &#2ECC71Clan PvP enabled!'
+  disabled: '{icon_success} &#E74C3CClan PvP disabled!'
   
 member:
   promoted: '{icon_success} &#2ECC71{player} was promoted to &f{rank}&#2ECC71!'
@@ -68,11 +76,16 @@ member:
   you-demoted: '{icon_success} &#E67E22You were demoted to &f{rank} &#E67E22in &f{clan}&#E67E22.'
   kicked: '{icon_success} &#2ECC71{player} was kicked from the clan!'
   cannot-kick-owner: '{icon_error} &#E74C3CYou cannot kick the clan owner!'
+  cannot-kick-self: '{icon_error} &#E74C3CYou cannot kick yourself!'
   cannot-promote-owner: '{icon_error} &#E74C3CThe owner cannot be promoted!'
   cannot-demote-owner: '{icon_error} &#E74C3CYou cannot demote the clan owner!'
   already-owner: '{icon_error} &#E74C3CThat player is already the owner!'
   already-max-rank: '{icon_error} &#E74C3CThat player is already at the maximum rank!'
   already-min-rank: '{icon_error} &#E74C3CThat player is already at the minimum rank!'
+
+admin:
+  disbands-clan: '{icon_success} &#E74C3CAdmin {admin} disbanded clan &f{clan}&#E74C3C!'
+  clan-disbanded-by-admin: '{icon_error} &#E74C3CYour clan was disbanded by an admin!'
   
 level:
   up: '{icon_level} &#9B59B6Your clan leveled up to level &f{level}&#9B59B6! New tag: {tag}'
@@ -152,11 +165,34 @@ gui:
         - ' &#95A5A6Your clan doesn''t have'
         - ' &#95A5A6a home set yet.'
         - ''
-        - ' &#F39C12Use &#F1C40F/clan sethome'
-        - ' &#F39C12to set one!'
+        - ' &#F39C12Click to set home'
+        - ' &#F39C12at your location!'
         - ''
       
       status-set: '&#2ECC71Set'
+
+    pvp:
+      name: '&#E74C3C&l⚔ &r&#ECF0F1Clan PvP'
+      lore-enabled:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Status: &#2ECC71Enabled'
+        - ''
+        - ' &#95A5A6Clan members can'
+        - ' &#95A5A6damage each other.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto disable!'
+        - ''
+      lore-disabled:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Status: &#E74C3CDisabled'
+        - ''
+        - ' &#95A5A6Clan members are'
+        - ' &#95A5A6protected from each other.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto enable!'
+        - ''
     
     lookup:
       name: '&#3498DB&l🔍 &r&#ECF0F1Browse Clans'

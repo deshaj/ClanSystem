@@ -44,6 +44,14 @@ public class ConfirmKickGUI extends InventoryGUI {
                 "&b" + targetMember.getPlayerName()))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
+                
+                if (targetMember.getPlayerUUID().equals(clicker.getUniqueId())) {
+                    plugin.getMessageManager().send(clicker, "member.cannot-kick-self");
+                    plugin.getSoundManager().play(clicker, "error");
+                    clicker.closeInventory();
+                    return;
+                }
+                
                 clan.removeMember(targetMember.getPlayerUUID());
                 plugin.getClanManager().removeMember(clan, targetMember.getPlayerUUID());
                 

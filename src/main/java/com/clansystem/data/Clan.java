@@ -22,6 +22,7 @@ public class Clan {
     private long totalPlaytime;
     private double totalMoney;
     private long createdAt;
+    private boolean pvpEnabled = true;
     
     public ClanMember getMember(UUID uuid) {
         return members.stream()

@@ -9,7 +9,7 @@ description: Complete GUI-based clan system with ranks, homes, stats, and leveli
 commands:
   clan:
     description: Main clan command
-    aliases: [c]
+    aliases: [c, team]
     usage: /clan <subcommand>
   cc:
     description: Toggle clan chat

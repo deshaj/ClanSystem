@@ -39,8 +39,20 @@ public class PlayerDataManager {
         return repository.getPlayerClan(playerUUID).thenApply(clanId -> {
             if (clanId != null) {
                 cachedClanIds.put(playerUUID, clanId);
+            } else {
+                cachedClanIds.remove(playerUUID);
             }
             return clanId;
+        });
+    }
+    
+    public CompletableFuture<Void> loadPlayerClan(UUID playerUUID) {
+        return repository.getPlayerClan(playerUUID).thenAccept(clanId -> {
+            if (clanId != null) {
+                cachedClanIds.put(playerUUID, clanId);
+            } else {
+                cachedClanIds.remove(playerUUID);
+            }
         });
     }
     
