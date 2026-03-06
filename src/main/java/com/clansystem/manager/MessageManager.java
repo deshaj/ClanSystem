@@ -62,7 +62,7 @@ public class MessageManager {
         sender.sendMessage(getPrefix() + getMessage(path, placeholders));
     }
     
-    private String format(String message) {
+    public String format(String message) {
         for (Map.Entry<String, String> icon : icons.entrySet()) {
             message = message.replace("{" + icon.getKey() + "}", icon.getValue());
         }
@@ -73,6 +73,10 @@ public class MessageManager {
         return format(messages.getString("prefix", "&#5DADE2[&#3498DBClan&#5DADE2] &7"));
     }
     
+    public String color(String message) {
+        return format(message);
+    }
+
     public String getIcon(String name) {
         return format(icons.getOrDefault("icon_" + name, ""));
     }

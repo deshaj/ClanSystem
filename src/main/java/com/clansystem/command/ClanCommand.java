@@ -6,6 +6,7 @@ import com.clansystem.data.ClanMember;
 import com.clansystem.data.ClanRank;
 import com.clansystem.inventory.impl.ClanLookupGUI;
 import com.clansystem.inventory.impl.ClanMainGUI;
+import com.clansystem.inventory.impl.NoClanGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -389,11 +390,7 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
     private void handleGUI(Player player) {
         Clan clan = plugin.getClanManager().getPlayerClan(player.getUniqueId());
         if (clan == null) {
-            if (plugin.getClanManager().getAllClans().isEmpty()) {
-                plugin.getMessageManager().send(player, "clan.no-clans-exist");
-            } else {
-                plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, 1), player);
-            }
+            plugin.getGuiManager().openGUI(new NoClanGUI(plugin, player), player);
         } else {
             plugin.getGuiManager().openGUI(new ClanMainGUI(plugin, clan), player);
         }

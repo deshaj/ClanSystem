@@ -25,9 +25,18 @@ public class ClanLookupGUI extends InventoryGUI {
     private final int page;
     private static final int CLANS_PER_PAGE = 45;
     
+    private final Player playerContext;
+
     public ClanLookupGUI(ClanSystem plugin, int page) {
         this.plugin = plugin;
         this.page = page;
+        this.playerContext = null;
+    }
+
+    public ClanLookupGUI(ClanSystem plugin, Player player, int page) {
+        this.plugin = plugin;
+        this.page = page;
+        this.playerContext = player;
     }
     
     @Override
@@ -46,6 +55,22 @@ public class ClanLookupGUI extends InventoryGUI {
     
     @Override
     public void decorate(Player player) {
+        String fillerMat = plugin.getConfigManager().getString("gui.lookup-menu.filler.material", "GRAY_STAINED_GLASS_PANE");
+        String fillerName = plugin.getConfigManager().getString("gui.lookup-menu.filler.name", " ");
+        ItemStack filler = XMaterial.matchXMaterial(fillerMat).map(XMaterial::parseItem).orElse(null);
+        if (filler != null) {
+            ItemMeta fillerMeta = filler.getItemMeta();
+            if (fillerMeta != null) {
+                fillerMeta.setDisplayName(plugin.getMessageManager().format(fillerName));
+                filler.setItemMeta(fillerMeta);
+            }
+            for (int i = 45; i < 54; i++) {
+                if (i != 45 && i != 49 && i != 53) {
+                    getInventory().setItem(i, filler);
+                }
+            }
+        }
+
         List<Clan> allClans = plugin.getClanManager().getClansSorted();
         int totalPages = (int) Math.ceil((double) allClans.size() / CLANS_PER_PAGE);
         if (totalPages == 0) totalPages = 1;
@@ -61,37 +86,53 @@ public class ClanLookupGUI extends InventoryGUI {
                 .creator(p -> createClanItemForPlayer(p, clan))
                 .consumer(event -> {
                     Player clicker = (Player) event.getWhoClicked();
-                    showClanInfo(clicker, clan);
-                    clicker.closeInventory();
+                    if (event.isLeftClick()) {
+                        BrowseClanDetailsGUI detailsGUI = new BrowseClanDetailsGUI(plugin, clicker, clan, page);
+                        plugin.getGuiManager().openGUI(detailsGUI, clicker);
+                    } else if (event.isRightClick()) {
+                        clicker.closeInventory();
+                        plugin.getMessageManager().send(clicker, "invitation.prompt-join-message");
+                        plugin.getClanChatManager().setSendingJoinRequest(clicker.getUniqueId(), clan.getId());
+                    }
                 })
             );
         }
         
         if (page > 1) {
-            addButton(48, new InventoryButton()
+            addButton(45, new InventoryButton()
                 .creator(p -> createItem("ARROW", "&aPrevious Page"))
                 .consumer(event -> {
                     Player clicker = (Player) event.getWhoClicked();
-                    plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, page - 1), clicker);
+                    ClanLookupGUI lookupGUI = playerContext != null ? 
+                        new ClanLookupGUI(plugin, playerContext, page - 1) : 
+                        new ClanLookupGUI(plugin, page - 1);
+                    plugin.getGuiManager().openGUI(lookupGUI, clicker);
                 })
             );
         }
         
         if (page < totalPages) {
-            addButton(50, new InventoryButton()
+            addButton(53, new InventoryButton()
                 .creator(p -> createItem("ARROW", "&aNext Page"))
                 .consumer(event -> {
                     Player clicker = (Player) event.getWhoClicked();
-                    plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, page + 1), clicker);
+                    ClanLookupGUI lookupGUI = playerContext != null ? 
+                        new ClanLookupGUI(plugin, playerContext, page + 1) : 
+                        new ClanLookupGUI(plugin, page + 1);
+                    plugin.getGuiManager().openGUI(lookupGUI, clicker);
                 })
             );
         }
         
         addButton(49, new InventoryButton()
-            .creator(p -> createItem("BARRIER", "&cClose"))
+            .creator(p -> createItem("BARRIER", "&cBack to Menu"))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
-                clicker.closeInventory();
+                if (playerContext != null) {
+                    plugin.getGuiManager().openGUI(new NoClanGUI(plugin, clicker), clicker);
+                } else {
+                    clicker.closeInventory();
+                }
             })
         );
         

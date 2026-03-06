@@ -2,6 +2,8 @@ package com.clansystem.inventory.impl;
 
 import com.clansystem.ClanSystem;
 import com.clansystem.data.Clan;
+import com.clansystem.data.ClanMember;
+import com.clansystem.data.ClanRank;
 import com.clansystem.inventory.InventoryButton;
 import com.clansystem.inventory.InventoryGUI;
 import com.clansystem.util.ColorUtil;
@@ -35,6 +37,8 @@ public class ClanMainGUI extends InventoryGUI {
     
     @Override
     public void decorate(Player player) {
+        addFillerGlass();
+        
         int maxMembers = plugin.getConfigManager().maxMembers();
         Map<String, String> memberPlaceholders = new HashMap<>();
         memberPlaceholders.put("count", String.valueOf(clan.getMemberCount()));
@@ -74,6 +78,23 @@ public class ClanMainGUI extends InventoryGUI {
             })
         );
         
+        ClanMember member = clan.getMember(player.getUniqueId());
+        if (member != null && (member.getRank() == ClanRank.OWNER || member.getRank() == ClanRank.MOD)) {
+            addButton(9, new InventoryButton()
+                .creator(p -> {
+                    int requestCount = plugin.getInvitationManager().getClanRequests(clan.getId()).size();
+                    String name = plugin.getMessageManager().getMessage("gui.items.join-requests.name", 
+                        Map.of("count", String.valueOf(requestCount)));
+                    return createItemWithLore("WRITABLE_BOOK", name,
+                        plugin.getMessageManager().getLore("gui.items.join-requests.lore", Map.of("count", String.valueOf(requestCount))));
+                })
+                .consumer(event -> {
+                    Player clicker = (Player) event.getWhoClicked();
+                    plugin.getGuiManager().openGUI(new JoinRequestsGUI(plugin, clicker, clan), clicker);
+                })
+            );
+        }
+
         addButton(15, new InventoryButton()
             .creator(p -> {
                 String name = plugin.getMessageManager().getMessage("gui.items.home.name");
@@ -171,6 +192,29 @@ public class ClanMainGUI extends InventoryGUI {
         }
         
         super.decorate(player);
+    }
+
+    private void addFillerGlass() {
+        boolean enabled = plugin.getConfigManager().getBoolean("gui.main-menu.filler.enabled", true);
+        if (!enabled) return;
+
+        String materialName = plugin.getConfigManager().getString("gui.main-menu.filler.material", "GRAY_STAINED_GLASS_PANE");
+        String name = plugin.getConfigManager().getString("gui.main-menu.filler.name", " ");
+        
+        ItemStack filler = XMaterial.matchXMaterial(materialName).map(XMaterial::parseItem).orElse(null);
+        if (filler == null) return;
+        
+        ItemMeta meta = filler.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(plugin.getMessageManager().format(name));
+            filler.setItemMeta(meta);
+        }
+
+        for (int i = 0; i < getInventory().getSize(); i++) {
+            if (i != 9 && i != 11 && i != 13 && i != 15 && i != 20 && i != 22 && i != 26) {
+                getInventory().setItem(i, filler);
+            }
+        }
     }
     
     private ItemStack createItemWithLore(String materialName, String name, List<String> lore) {

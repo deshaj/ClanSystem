@@ -39,7 +39,8 @@ public class ConfirmDisbandGUI extends InventoryGUI {
                 clicker.closeInventory();
                 
                 plugin.getClanManager().disbandClan(clan.getId()).thenRun(() -> {
-                    plugin.getMessageManager().send(clicker, "clan.disbanded");
+                    plugin.getMessageManager().send(clicker, "clan.disbanded", 
+                        java.util.Map.of("clan", clan.getName()));
                     plugin.getSoundManager().playDisband(clicker);
                 });
             })

@@ -104,6 +104,11 @@ public class Database {
                 "player_uuid VARCHAR(36) NOT NULL, " +
                 "clan_id VARCHAR(36) NOT NULL, " +
                 "PRIMARY KEY (player_uuid, clan_id)" +
+                ")",
+                "CREATE TABLE IF NOT EXISTS join_requests (" +
+                "player_uuid VARCHAR(36) NOT NULL, " +
+                "clan_id VARCHAR(36) NOT NULL, " +
+                "PRIMARY KEY (player_uuid, clan_id)" +
                 ")"
             };
             for (String sql : statements) {

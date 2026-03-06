@@ -54,11 +54,19 @@ public class SoundManager {
     public void playDisband(Player player) {
         play(player, "disband");
     }
+
+    public void playCreate(Player player) {
+        play(player, "clan-create");
+    }
     
     public void playTeleport(Player player) {
         play(player, "teleport");
     }
     
+    public void playSound(Player player, String key) {
+        play(player, key);
+    }
+
     public void play(Player player, String key) {
         if (!plugin.getConfigManager().getConfig().getBoolean("sounds.enabled", true)) {
             return;

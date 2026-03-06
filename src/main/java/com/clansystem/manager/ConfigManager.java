@@ -2,6 +2,7 @@ package com.clansystem.manager;
 
 import com.clansystem.ClanSystem;
 import org.bukkit.configuration.file.FileConfiguration;
+import java.util.List;
 
 public class ConfigManager {
     private final ClanSystem plugin;
@@ -53,6 +54,30 @@ public class ConfigManager {
         return config.getString("level.levels." + level + ".tag", "&7[Clan]");
     }
     
+    public String getString(String path, String def) {
+        return config.getString(path, def);
+    }
+
+    public int getInt(String path, int def) {
+        return config.getInt(path, def);
+    }
+
+    public List<String> getStringList(String path) {
+        return config.getStringList(path);
+    }
+
+    public boolean getBoolean(String path, boolean def) {
+        return config.getBoolean(path, def);
+    }
+
+    public int minClanNameLength() {
+        return config.getInt("clan.min-name-length", 3);
+    }
+
+    public int maxClanNameLength() {
+        return config.getInt("clan.max-name-length", 16);
+    }
+
     public int getMaxLevel() {
         int maxLevel = 1;
         if (config.contains("level.levels")) {

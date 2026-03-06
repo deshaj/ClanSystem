@@ -51,6 +51,16 @@ invite:
   received-clickable: '{icon_info} &#2ECC71[Click to Join]'
   no-invitation: '{icon_error} &#E74C3CYou don''t have an invitation from that clan!'
   already-member: '{icon_error} &#E74C3CThat player is already in a clan!'
+
+invitation:
+  request-sent: '{icon_success} &#2ECC71Join request sent to &f{clan}&#2ECC71!'
+  request-received: '{icon_info} &#F39C12{player} &#95A5A6sent a join request to &f{clan}&#95A5A6!'
+  accepted: '{icon_success} &#2ECC71Your join request to &f{clan} &#2ECC71was accepted!'
+  declined: '{icon_error} &#E74C3CYour join request to &f{clan} &#E74C3Cwas declined.'
+  expired: '{icon_info} &#95A5A6Your invitation from &f{clan} &#95A5A6has expired.'
+  prompt-clan-name: '{icon_info} &#F39C12Type the clan name in chat to create your clan!'
+  prompt-join-message: '{icon_info} &#F39C12Type your join message in chat (why should they accept you?)'
+  cancelled: '{icon_info} &#95A5A6Action cancelled.'
   
 home:
   set: '{icon_home} &#2ECC71Clan home set!'
@@ -114,6 +124,19 @@ gui:
   promote-demote-title: '&#34495EManage {player}'
   
   items:
+    join-requests:
+      name: '&#F39C12&lJoin Requests &7({count})'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Pending: &#F39C12{count}'
+        - ''
+        - ' &#95A5A6View and manage join'
+        - ' &#95A5A6requests for your clan.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto view!'
+        - ''
+    
     members:
       name: '&#3498DB&l👥 &r&#ECF0F1Clan Members'
       lore:

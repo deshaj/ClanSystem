@@ -4,6 +4,7 @@ import com.clansystem.command.ClanCommand;
 import com.clansystem.database.ClanRepository;
 import com.clansystem.database.Database;
 import com.clansystem.database.PlayerRepository;
+import com.clansystem.database.RequestRepository;
 import com.clansystem.inventory.gui.GUIListener;
 import com.clansystem.inventory.gui.GUIManager;
 import com.clansystem.listener.ChatListener;
@@ -22,7 +23,8 @@ public final class ClanSystem extends JavaPlugin {
     private Database database;
     private ClanRepository clanRepository;
     private PlayerRepository playerRepository;
-    
+    private RequestRepository requestRepository;
+
     private ConfigManager configManager;
     private MessageManager messageManager;
     private SoundManager soundManager;
@@ -32,6 +34,8 @@ public final class ClanSystem extends JavaPlugin {
     private HomeManager homeManager;
     private LevelManager levelManager;
     private GUIManager guiManager;
+    private InvitationManager invitationManager;
+    private ChatInputManager chatInputManager;
     
     @Override
     public void onEnable() {
@@ -56,7 +60,9 @@ public final class ClanSystem extends JavaPlugin {
         this.clanChatManager = new ClanChatManager();
         this.homeManager = new HomeManager(this);
         this.levelManager = new LevelManager(this);
+        this.requestRepository = new RequestRepository(this, database);
         this.guiManager = new GUIManager(this);
+        this.invitationManager = new InvitationManager(this, playerRepository);
         
         registerListeners();
         registerCommands();

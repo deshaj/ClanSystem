@@ -1,0 +1,284 @@
+no-clan:
+  title: '&#34495EClan Menu'
+  size: 27
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    name: ' '
+  
+  items:
+    create-clan:
+      slot: 11
+      material: ANVIL
+      name: '&#2ECC71&lCreate Clan'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#95A5A6Start your own clan'
+        - ' &#95A5A6and invite players to'
+        - ' &#95A5A6join your ranks!'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto create!'
+        - ''
+
+create-clan:
+  title: '&#34495ECreate Clan'
+  size: 27
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    name: ' '
+  
+  items:
+    clan-name:
+      slot: 11
+      material: NAME_TAG
+      name: '&#F1C40F&lClan Name'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Current: &#95A5A6{name}'
+        - ''
+        - ' &#95A5A6Set the name for'
+        - ' &#95A5A6your new clan.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto set!'
+        - ''
+    
+    clan-tag:
+      slot: 13
+      material: BANNER
+      name: '&#E67E22&lClan Tag'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Current: {tag}'
+        - ''
+        - ' &#95A5A6Set a short tag that'
+        - ' &#95A5A6appears before your name.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto set!'
+        - ''
+    
+    confirm-create:
+      slot: 15
+      material: LIME_DYE
+      name: '&#2ECC71&l✔ Create Clan'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Name: &#F1C40F{name}'
+        - ' &#ECF0F1Tag: {tag}'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto confirm!'
+        - ''
+    
+    cancel:
+      slot: 22
+      material: BARRIER
+      name: '&#E74C3C&l✖ Cancel'
+      lore:
+        - '&#95A5A6Return to main menu'
+    
+    browse-clans:
+      slot: 15
+      material: COMPASS
+      name: '&#3498DB&lBrowse Clans'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#95A5A6Explore all clans on'
+        - ' &#95A5A6the server and send'
+        - ' &#95A5A6join requests.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto browse!'
+        - ''
+    
+    invitations:
+      slot: 0
+      material: PAPER
+      name: '&#F39C12&lInvitations'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Pending: &#F39C12{count}'
+        - ''
+        - ' &#95A5A6View and manage your'
+        - ' &#95A5A6clan invitations.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto view!'
+        - ''
+
+browse-clans:
+  title: '&#34495EBrowse Clans &#95A5A6({page}/{pages})'
+  size: 54
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    name: ' '
+  
+  items:
+    clan-item:
+      material: PLAYER_HEAD
+      name: '&#3498DB{clan}'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Owner: &#F1C40F{owner}'
+        - ' &#ECF0F1Members: &#3498DB{members}&#95A5A6/&#3498DB{max}'
+        - ' &#ECF0F1Level: &#9B59B6{level}'
+        - ' &#ECF0F1K/D: &#F39C12{kd}'
+        - ''
+        - '&#ECF0F1→ &#2ECC71&l&nLEFT CLICK &r&#2ECC71for details!'
+        - '&#ECF0F1→ &#F39C12&l&nRIGHT CLICK &r&#F39C12to request join!'
+        - ''
+    
+    previous-page:
+      slot: 45
+      material: ARROW
+      name: '&#E74C3C← Previous Page'
+      lore:
+        - '&#95A5A6Go to page {page}'
+    
+    next-page:
+      slot: 53
+      material: ARROW
+      name: '&#2ECC71Next Page →'
+      lore:
+        - '&#95A5A6Go to page {page}'
+    
+    back:
+      slot: 49
+      material: BARRIER
+      name: '&#E74C3C← Back'
+      lore:
+        - '&#95A5A6Return to main menu'
+
+main-menu:
+  title: '&#34495EClan Menu'
+  size: 27
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    name: ' '
+
+members-menu:
+  title: '&#34495EClan Members'
+  size: 54
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    name: ' '
+
+join-requests-menu:
+  title: '&#34495EJoin Requests'
+  size: 54
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    name: ' '
+
+clan-details:
+  title: '&#34495E{clan} Details'
+  size: 27
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    name: ' '
+  
+  items:
+    clan-info:
+      slot: 13
+      material: PLAYER_HEAD
+      name: '&#3498DB{clan}'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Owner: &#F1C40F{owner}'
+        - ' &#ECF0F1Members: &#3498DB{members}&#95A5A6/&#3498DB{max}'
+        - ' &#ECF0F1Level: &#9B59B6{level}'
+        - ''
+        - ' &#ECF0F1Total Kills: &#2ECC71{kills}'
+        - ' &#ECF0F1Total Deaths: &#E74C3C{deaths}'
+        - ' &#ECF0F1K/D Ratio: &#F39C12{kd}'
+        - ''
+        - ' &#ECF0F1Created: &#95A5A6{date}'
+        - ''
+    
+    send-request:
+      slot: 11
+      material: WRITABLE_BOOK
+      name: '&#2ECC71&lSend Join Request'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#95A5A6Send a join request'
+        - ' &#95A5A6to this clan with a'
+        - ' &#95A5A6custom message.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto send!'
+        - ''
+    
+    back:
+      slot: 15
+      material: BARRIER
+      name: '&#E74C3C← Back'
+      lore:
+        - '&#95A5A6Return to browse clans'
+
+invitations:
+  title: '&#34495EYour Invitations'
+  size: 54
+  
+  items:
+    invitation-item:
+      material: PAPER
+      name: '&#3498DB{clan}'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1From: &#F1C40F{inviter}'
+        - ' &#ECF0F1Expires: &#E67E22{expires}'
+        - ''
+        - ' &#2ECC71Left-Click to accept'
+        - ' &#E74C3CRight-Click to decline'
+        - ''
+    
+    back:
+      slot: 49
+      material: BARRIER
+      name: '&#E74C3C← Back'
+      lore:
+        - '&#95A5A6Return to main menu'
+
+join-requests:
+  title: '&#34495EJoin Requests'
+  size: 54
+  
+  items:
+    request-item:
+      material: PLAYER_HEAD
+      name: '&#3498DB{player}'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Message:'
+        - ' &#95A5A6"{message}"'
+        - ''
+        - ' &#ECF0F1Stats:'
+        - ' &#ECF0F1Kills: &#2ECC71{kills}'
+        - ' &#ECF0F1Deaths: &#E74C3C{deaths}'
+        - ' &#ECF0F1K/D: &#F39C12{kd}'
+        - ''
+        - ' &#ECF0F1Sent: &#95A5A6{time}'
+        - ''
+        - ' &#2ECC71Left-Click to accept'
+        - ' &#E74C3CRight-Click to decline'
+        - ''
+    
+    back:
+      slot: 49
+      material: BARRIER
+      name: '&#E74C3C← Back'
+      lore:
+        - '&#95A5A6Return to clan menu'

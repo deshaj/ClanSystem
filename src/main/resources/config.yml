@@ -17,6 +17,8 @@ clan:
   min-name-length: 3
   max-members: 10
   home-cooldown: 5
+  invitation-expiry-days: 3
+  join-request-expiry-days: 3
   
 level:
   enabled: true
@@ -53,6 +55,101 @@ level:
       required-kills: 5000
       tag: '&b&l[✪ Clan ✪]'
 
+gui:
+  no-clan:
+    title: "&8Create or Join a Clan"
+    size: 27
+    filler: "GRAY_STAINED_GLASS_PANE"
+    create-button:
+      slot: 11
+      material: "ANVIL"
+      name: "&a&lCreate Clan"
+      lore:
+        - "&7Click to create your own clan!"
+        - ""
+        - "&eYou'll be prompted to enter"
+        - "&ea clan name in chat."
+    browse-button:
+      slot: 15
+      material: "COMPASS"
+      name: "&b&lBrowse Clans"
+      lore:
+        - "&7View all available clans"
+        - "&7and request to join!"
+    invitations-button:
+      slot: 0
+      material: "PAPER"
+      name: "&e&lClan Invitations &7({count})"
+      lore:
+        - "&7You have pending clan invitations!"
+        - ""
+        - "&aLeft-Click &7to view invitations"
+  
+  browse:
+    title: "&8Browse Clans"
+    clan-item:
+      name: "&6{clan}"
+      lore:
+        - "&7Owner: &f{owner}"
+        - "&7Members: &f{members}"
+        - "&7Kills: &a{kills}"
+        - "&7Deaths: &c{deaths}"
+        - "&7K/D: &e{kd}"
+        - ""
+        - "&eClick to view details!"
+  
+  clan-details:
+    title: "&8{clan} Details"
+    info-button:
+      material: "PAPER"
+      name: "&6&lClan Information"
+      lore:
+        - "&7Owner: &f{owner}"
+        - "&7Members: &f{members}"
+        - "&7Kills: &a{kills}"
+        - "&7Deaths: &c{deaths}"
+        - "&7K/D: &e{kd}"
+    request-button:
+      material: "WRITABLE_BOOK"
+      name: "&a&lRequest to Join"
+      lore:
+        - "&7Send a join request to this clan!"
+        - ""
+        - "&eYou'll be prompted to explain"
+        - "&ewhy you should join."
+    back-button:
+      material: "ARROW"
+      name: "&cBack"
+  
+  join-requests:
+    title: "&8Join Requests"
+    request-item:
+      name: "&6{player}"
+      lore:
+        - "&7Time: &f{time}"
+        - "&7Message: &f{message}"
+        - ""
+        - "&7Stats:"
+        - "&7  Kills: &a{kills}"
+        - "&7  Deaths: &c{deaths}"
+        - "&7  K/D: &e{kd}"
+        - ""
+        - "&aLeft-Click &7to accept"
+        - "&cRight-Click &7to decline"
+  
+  invitations:
+    title: "&8Clan Invitations"
+    invitation-item:
+      material: "PAPER"
+      name: "&6Invitation from &e{clan}"
+      lore:
+        - "&7Invited by: &f{inviter}"
+        - "&7Date: &f{date}"
+        - "&7Expires in: &c{expires}"
+        - ""
+        - "&aLeft-Click &7to accept"
+        - "&cRight-Click &7to decline"
+
 sounds:
   enabled: true
   success: ENTITY_EXPERIENCE_ORB_PICKUP
@@ -67,7 +164,7 @@ sounds:
   levelup: ENTITY_PLAYER_LEVELUP
   disband: ENTITY_WITHER_DEATH
   teleport: ENTITY_ENDERMAN_TELEPORT
-  clan-create: ENTITY_PLAYER_LEVELUP
+  clan-create: BLOCK_ANVIL_USE
   clan-disband: ENTITY_WITHER_DEATH
   clan-join: ENTITY_EXPERIENCE_ORB_PICKUP
   clan-leave: BLOCK_IRON_DOOR_CLOSE

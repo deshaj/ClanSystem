@@ -38,6 +38,8 @@ public class ClanMembersGUI extends InventoryGUI {
     
     @Override
     public void decorate(Player player) {
+        addFillerGlass();
+        
         List<ClanMember> members = new ArrayList<>(clan.getMembers());
         members.sort((m1, m2) -> Integer.compare(m2.getRank().getPriority(), m1.getRank().getPriority()));
         
@@ -79,6 +81,29 @@ public class ClanMembersGUI extends InventoryGUI {
         );
         
         super.decorate(player);
+    }
+
+    private void addFillerGlass() {
+        boolean enabled = plugin.getConfigManager().getBoolean("gui.members-menu.filler.enabled", true);
+        if (!enabled) return;
+
+        String materialName = plugin.getConfigManager().getString("gui.members-menu.filler.material", "GRAY_STAINED_GLASS_PANE");
+        String name = plugin.getConfigManager().getString("gui.members-menu.filler.name", " ");
+        
+        ItemStack filler = XMaterial.matchXMaterial(materialName).map(XMaterial::parseItem).orElse(null);
+        if (filler == null) return;
+        
+        ItemMeta meta = filler.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(plugin.getMessageManager().format(name));
+            filler.setItemMeta(meta);
+        }
+
+        for (int i = 45; i < 54; i++) {
+            if (i != 49) {
+                getInventory().setItem(i, filler);
+            }
+        }
     }
     
     private ItemStack createMemberHead(ClanMember member) {
