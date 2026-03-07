@@ -113,6 +113,13 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
                 if (!(sender instanceof Player player)) { sender.sendMessage("Only players."); return true; }
                 handlePvp(player);
             }
+            case "reload" -> {
+                if (!sender.hasPermission("clansystem.admin")) {
+                    plugin.getMessageManager().send(sender, "clan.no-permission");
+                    return true;
+                }
+                handleReload(sender);
+            }
             case "admin" -> {
                 if (!sender.hasPermission("clansystem.admin")) {
                     plugin.getMessageManager().send(sender, "clan.no-permission");
@@ -130,6 +137,13 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
                     handleAdminDisband(sender, args[2]);
                 }
             }
+            case "reload" -> {
+                if (!sender.hasPermission("clansystem.admin")) {
+                    plugin.getMessageManager().send(sender, "clan.no-permission");
+                    return true;
+                }
+                handleReload(sender);
+            }
             default -> plugin.getMessageManager().send(sender, "clan.unknown-command");
         }
         return true;
@@ -142,6 +156,7 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
             List<String> subcommands = new ArrayList<>(Arrays.asList("create", "disband", "invite", "join", "leave", "kick", "home", "sethome", "delhome", "chat", "info", "list", "gui", "promote", "demote", "pvp"));
             if (sender.hasPermission("clansystem.admin")) {
                 subcommands.add("admin");
+                subcommands.add("reload");
             }
             return subcommands;
         }
@@ -467,5 +482,13 @@ public class ClanCommand implements CommandExecutor, TabCompleter {
             plugin.getSoundManager().playDemote(target);
             plugin.getMessageManager().send(target, "member.you-demoted", Map.of("clan", clan.getName()));
         }
+    }
+
+    private void handleReload(CommandSender sender) {
+        long startTime = System.currentTimeMillis();
+        plugin.getConfigManager().reload();
+        plugin.getMessageManager().reload();
+        long elapsed = System.currentTimeMillis() - startTime;
+        sender.sendMessage(plugin.getMessageManager().format("&#2ECC71✔ Successfully reloaded ClanSystem in " + elapsed + "ms!"));
     }
 }

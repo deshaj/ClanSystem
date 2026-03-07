@@ -39,9 +39,9 @@ public class BrowseClanDetailsGUI extends InventoryGUI {
     @Override
     public void decorate(Player player) {
         addFillerGlass();
+        addStatsButton();
         addClanInfoButton();
         addSendRequestButton();
-        addBackButton();
         super.decorate(player);
     }
 
@@ -77,23 +77,54 @@ public class BrowseClanDetailsGUI extends InventoryGUI {
         }
     }
 
+    private void addStatsButton() {
+        int slot = plugin.getConfigManager().getInt("gui.clan-details.items.stats.slot", 11);
+        String materialName = plugin.getConfigManager().getString("gui.clan-details.items.stats.material", "DIAMOND_SWORD");
+        String name = plugin.getConfigManager().getString("gui.clan-details.items.stats.name", "&e&lClan Statistics");
+        List<String> lore = plugin.getConfigManager().getStringList("gui.clan-details.items.stats.lore");
+
+        double kd = clan.getTotalDeaths() > 0 ? (double) clan.getTotalKills() / clan.getTotalDeaths() : clan.getTotalKills();
+        int level = plugin.getLevelManager().calculateLevel(clan);
+        
+        List<String> finalLore = new ArrayList<>();
+        for (String line : lore) {
+            line = line.replace("{kills}", String.valueOf(clan.getTotalKills()))
+                .replace("{deaths}", String.valueOf(clan.getTotalDeaths()))
+                .replace("{kd}", String.format("%.2f", kd))
+                .replace("{level}", String.valueOf(level));
+            finalLore.add(line);
+        }
+
+        addButton(slot, new InventoryButton()
+            .creator(p -> createItem(materialName, name, finalLore))
+            .consumer(event -> {})
+        );
+    }
+
     private void addClanInfoButton() {
-        int slot = plugin.getConfigManager().getInt("gui.browse-clan-details.clan-info.slot", 13);
-        String materialName = plugin.getConfigManager().getString("gui.browse-clan-details.clan-info.material", "BANNER");
-        String name = plugin.getConfigManager().getString("gui.browse-clan-details.clan-info.name", "&e&l{clan}");
-        List<String> lore = plugin.getConfigManager().getStringList("gui.browse-clan-details.clan-info.lore");
+        int slot = plugin.getConfigManager().getInt("gui.clan-details.items.clan-info.slot", 13);
+        String materialName = plugin.getConfigManager().getString("gui.clan-details.items.clan-info.material", "BANNER");
+        String name = plugin.getConfigManager().getString("gui.clan-details.items.clan-info.name", "&e&l{clan}");
+        List<String> lore = plugin.getConfigManager().getStringList("gui.clan-details.items.clan-info.lore");
 
         String finalName = name.replace("{clan}", clan.getName());
         double kd = clan.getTotalDeaths() > 0 ? (double) clan.getTotalKills() / clan.getTotalDeaths() : clan.getTotalKills();
+        int level = plugin.getLevelManager().calculateLevel(clan);
+        String owner = "Unknown";
+        if (clan.getOwnerMember() != null) {
+            owner = clan.getOwnerMember().getPlayerName();
+        }
         
         List<String> finalLore = new ArrayList<>();
         for (String line : lore) {
             line = line.replace("{clan}", clan.getName())
+                .replace("{owner}", owner)
                 .replace("{members}", String.valueOf(clan.getMemberCount()))
                 .replace("{max}", String.valueOf(plugin.getConfigManager().getInt("clan.max-members", 10)))
                 .replace("{kills}", String.valueOf(clan.getTotalKills()))
                 .replace("{deaths}", String.valueOf(clan.getTotalDeaths()))
-                .replace("{kd}", String.format("%.2f", kd));
+                .replace("{kd}", String.format("%.2f", kd))
+                .replace("{level}", String.valueOf(level));
             finalLore.add(line);
         }
 
@@ -104,10 +135,10 @@ public class BrowseClanDetailsGUI extends InventoryGUI {
     }
 
     private void addSendRequestButton() {
-        int slot = plugin.getConfigManager().getInt("gui.browse-clan-details.send-request.slot", 15);
-        String materialName = plugin.getConfigManager().getString("gui.browse-clan-details.send-request.material", "WRITABLE_BOOK");
-        String name = plugin.getConfigManager().getString("gui.browse-clan-details.send-request.name", "&a&lSend Join Request");
-        List<String> lore = plugin.getConfigManager().getStringList("gui.browse-clan-details.send-request.lore");
+        int slot = plugin.getConfigManager().getInt("gui.clan-details.items.send-request.slot", 15);
+        String materialName = plugin.getConfigManager().getString("gui.clan-details.items.send-request.material", "WRITABLE_BOOK");
+        String name = plugin.getConfigManager().getString("gui.clan-details.items.send-request.name", "&a&lSend Join Request");
+        List<String> lore = plugin.getConfigManager().getStringList("gui.clan-details.items.send-request.lore");
 
         addButton(slot, new InventoryButton()
             .creator(p -> createItem(materialName, name, lore))
@@ -127,21 +158,6 @@ public class BrowseClanDetailsGUI extends InventoryGUI {
                         }, 2L);
                     });
                 });
-            })
-        );
-    }
-
-    private void addBackButton() {
-        int slot = plugin.getConfigManager().getInt("gui.browse-clan-details.back-button.slot", 22);
-        String materialName = plugin.getConfigManager().getString("gui.browse-clan-details.back-button.material", "ARROW");
-        String name = plugin.getConfigManager().getString("gui.browse-clan-details.back-button.name", "&c← Back");
-        List<String> lore = plugin.getConfigManager().getStringList("gui.browse-clan-details.back-button.lore");
-
-        addButton(slot, new InventoryButton()
-            .creator(p -> createItem(materialName, name, lore))
-            .consumer(event -> {
-                Player clicker = (Player) event.getWhoClicked();
-                plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, clicker, returnPage), clicker, false);
             })
         );
     }

@@ -1,3 +1,13 @@
+# ====================================
+# ClanSystem GUI Configuration
+# ====================================
+# This file controls the appearance and layout of all GUI menus
+# Color codes: Use &#RRGGBB for hex colors, &a-&f for legacy colors
+
+# ====================================
+# No Clan Menu
+# ====================================
+# Shown to players who are not in a clan
 no-clan:
   title: '&#34495EClan Menu'
   size: 27
@@ -7,6 +17,7 @@ no-clan:
     name: ' '
   
   items:
+    # Button to create a new clan
     create-clan:
       slot: 11
       material: ANVIL
@@ -20,66 +31,8 @@ no-clan:
         - ''
         - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto create!'
         - ''
-
-create-clan:
-  title: '&#34495ECreate Clan'
-  size: 27
-  filler:
-    enabled: true
-    material: GRAY_STAINED_GLASS_PANE
-    name: ' '
-  
-  items:
-    clan-name:
-      slot: 11
-      material: NAME_TAG
-      name: '&#F1C40F&lClan Name'
-      lore:
-        - '&#95A5A6&m                    '
-        - ''
-        - ' &#ECF0F1Current: &#95A5A6{name}'
-        - ''
-        - ' &#95A5A6Set the name for'
-        - ' &#95A5A6your new clan.'
-        - ''
-        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto set!'
-        - ''
     
-    clan-tag:
-      slot: 13
-      material: BANNER
-      name: '&#E67E22&lClan Tag'
-      lore:
-        - '&#95A5A6&m                    '
-        - ''
-        - ' &#ECF0F1Current: {tag}'
-        - ''
-        - ' &#95A5A6Set a short tag that'
-        - ' &#95A5A6appears before your name.'
-        - ''
-        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto set!'
-        - ''
-    
-    confirm-create:
-      slot: 15
-      material: LIME_DYE
-      name: '&#2ECC71&l✔ Create Clan'
-      lore:
-        - '&#95A5A6&m                    '
-        - ''
-        - ' &#ECF0F1Name: &#F1C40F{name}'
-        - ' &#ECF0F1Tag: {tag}'
-        - ''
-        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto confirm!'
-        - ''
-    
-    cancel:
-      slot: 22
-      material: BARRIER
-      name: '&#E74C3C&l✖ Cancel'
-      lore:
-        - '&#95A5A6Return to main menu'
-    
+    # Button to browse existing clans
     browse-clans:
       slot: 15
       material: COMPASS
@@ -94,6 +47,7 @@ create-clan:
         - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto browse!'
         - ''
     
+    # Shows pending clan invitations
     invitations:
       slot: 0
       material: PAPER
@@ -109,6 +63,95 @@ create-clan:
         - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto view!'
         - ''
 
+# ====================================
+# Create Clan Menu
+# ====================================
+# Menu for setting up a new clan
+create-clan:
+  title: '&#34495ECreate Clan'
+  size: 27
+  filler:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    name: ' '
+  
+  items:
+    # Set clan name button
+    clan-name:
+      slot: 11
+      material: NAME_TAG
+      name: '&#F1C40F&lClan Name'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Current: &#95A5A6{name}'
+        - ''
+        - ' &#95A5A6Set the name for'
+        - ' &#95A5A6your new clan.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto set!'
+        - ''
+    
+    # Set clan tag button (with multiple states)
+    # Uses [button]-{state} format for multi-state items
+    clantag-notadded:
+      slot: 13
+      material: WHITE_BANNER
+      name: '&#E67E22&lClan Tag'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Current: &#E74C3CNone'
+        - ''
+        - ' &#95A5A6Set a short tag that'
+        - ' &#95A5A6appears before your name.'
+        - ''
+        - ' &#95A5A6This is optional!'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto set!'
+        - ''
+    
+    clantag-added:
+      slot: 13
+      material: ORANGE_BANNER
+      name: '&#E67E22&lClan Tag'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Current: {tag}'
+        - ''
+        - ' &#95A5A6Set a short tag that'
+        - ' &#95A5A6appears before your name.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto change!'
+        - ''
+    
+    # Confirm creation button
+    confirm-create:
+      slot: 15
+      material: LIME_DYE
+      name: '&#2ECC71&l✔ Create Clan'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Name: &#F1C40F{name}'
+        - ' &#ECF0F1Tag: {tag}'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto confirm!'
+        - ''
+    
+    # Cancel button
+    cancel:
+      slot: 22
+      material: BARRIER
+      name: '&#E74C3C&l✖ Cancel'
+      lore:
+        - '&#95A5A6Return to main menu'
+
+# ====================================
+# Browse Clans Menu
+# ====================================
+# Shows all clans on the server
 browse-clans:
   title: '&#34495EBrowse Clans &#95A5A6({page}/{pages})'
   size: 54
@@ -118,6 +161,7 @@ browse-clans:
     name: ' '
   
   items:
+    # Individual clan item (one per clan)
     clan-item:
       material: PLAYER_HEAD
       name: '&#3498DB{clan}'
@@ -133,6 +177,7 @@ browse-clans:
         - '&#ECF0F1→ &#F39C12&l&nRIGHT CLICK &r&#F39C12to request join!'
         - ''
     
+    # Previous page navigation
     previous-page:
       slot: 45
       material: ARROW
@@ -140,6 +185,7 @@ browse-clans:
       lore:
         - '&#95A5A6Go to page {page}'
     
+    # Next page navigation
     next-page:
       slot: 53
       material: ARROW
@@ -147,6 +193,7 @@ browse-clans:
       lore:
         - '&#95A5A6Go to page {page}'
     
+    # Back to main menu
     back:
       slot: 49
       material: BARRIER
@@ -154,45 +201,170 @@ browse-clans:
       lore:
         - '&#95A5A6Return to main menu'
 
+# ====================================
+# Main Clan Menu
+# ====================================
+# Main menu for clan members (5 rows)
 main-menu:
   title: '&#34495EClan Menu'
-  size: 27
+  size: 45  # 5 rows
   filler:
     enabled: true
     material: GRAY_STAINED_GLASS_PANE
     name: ' '
   
   items:
-    members:
+    # PVP toggle button (slot 11)
+    pvp-enabled:
       slot: 11
-      material: PLAYER_HEAD
+      material: DIAMOND_AXE
+      name: '&#E74C3C&l⚔ &r&#ECF0F1Clan PvP'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Status: &#2ECC71Enabled'
+        - ''
+        - ' &#95A5A6Clan members can'
+        - ' &#95A5A6damage each other.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto disable!'
+        - ''
     
-    stats:
+    pvp-disabled:
+      slot: 11
+      material: IRON_AXE
+      name: '&#E74C3C&l⚔ &r&#ECF0F1Clan PvP'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Status: &#E74C3CDisabled'
+        - ''
+        - ' &#95A5A6Clan members are'
+        - ' &#95A5A6protected from each other.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto enable!'
+        - ''
+    
+    # Clan members button (slot 13)
+    members:
       slot: 13
-      material: DIAMOND_SWORD
+      material: PLAYER_HEAD
+      name: '&#3498DB&l👥 &r&#ECF0F1Clan Members'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Members: &#3498DB{count}&#95A5A6/&#3498DB{max}'
+        - ''
+        - ' &#95A5A6View and manage your'
+        - ' &#95A5A6clan members, promote'
+        - ' &#95A5A6or demote players.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto view!'
+        - ''
     
-    join-requests:
-      slot: 9
-      material: WRITABLE_BOOK
-    
-    home:
+    # Home teleport button (slot 15)
+    home-set:
       slot: 15
-      material-set: RED_BED
-      material-not-set: WHITE_BED
+      material: RED_BED
+      name: '&#F1C40F&l⌂ &r&#ECF0F1Clan Home'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Status: &#2ECC71Set'
+        - ''
+        - ' &#95A5A6Teleport to your clan''s'
+        - ' &#95A5A6home location instantly.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto teleport!'
+        - ''
     
-    pvp:
+    home-not-set:
+      slot: 15
+      material: WHITE_BED
+      name: '&#F1C40F&l⌂ &r&#ECF0F1Clan Home'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Status: &#E74C3CNot Set'
+        - ''
+        - ' &#95A5A6Your clan doesn''t have'
+        - ' &#95A5A6a home set yet.'
+        - ''
+        - ' &#F39C12Click to set home'
+        - ' &#F39C12at your location!'
+        - ''
+    
+    # Clan stats button (slot 20)
+    stats:
       slot: 20
-      material-enabled: DIAMOND_SWORD
-      material-disabled: WOODEN_SWORD
+      material: DIAMOND_SWORD
+      name: '&#E67E22&l⚔ &r&#ECF0F1Clan Statistics'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Total Kills: &#2ECC71{kills}'
+        - ' &#ECF0F1Total Deaths: &#E74C3C{deaths}'
+        - ' &#ECF0F1K/D Ratio: &#F39C12{kd}'
+        - ' &#ECF0F1Level: &#9B59B6{level}'
+        - ''
+        - ' &#95A5A6View detailed statistics'
+        - ' &#95A5A6about your clan''s performance.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto view!'
+        - ''
     
+    # Browse clans button (slot 22)
     lookup:
       slot: 22
       material: COMPASS
+      name: '&#3498DB&l🔍 &r&#ECF0F1Browse Clans'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#95A5A6Explore all clans on'
+        - ' &#95A5A6the server and view'
+        - ' &#95A5A6their statistics.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto browse!'
+        - ''
     
+    # Join requests button (slot 24)
+    join-requests:
+      slot: 24
+      material: WRITABLE_BOOK
+      name: '&#F39C12&lJoin Requests &7({count})'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Pending: &#F39C12{count}'
+        - ''
+        - ' &#95A5A6View and manage join'
+        - ' &#95A5A6requests for your clan.'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto view!'
+        - ''
+    
+    # Disband clan button (slot 44 - last slot)
     disband:
-      slot: 26
-      material: TNT
+      slot: 44
+      material: TNT_MINECART
+      name: '&#E74C3C&l✖ Disband Clan'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#E74C3C&lWARNING:'
+        - ' &#95A5A6This will permanently'
+        - ' &#95A5A6delete your clan.'
+        - ''
+        - ' &#E74C3CThis cannot be undone!'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto disband!'
+        - ''
 
+# ====================================
+# Clan Members Menu
+# ====================================
+# Shows all members of the clan
 members-menu:
   title: '&#34495EClan Members'
   size: 54
@@ -202,10 +374,33 @@ members-menu:
     name: ' '
   
   items:
+    # Individual member head
+    member-head:
+      material: PLAYER_HEAD
+      name: '&#3498DB{player}'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Rank: {rank}'
+        - ' &#ECF0F1Kills: &#2ECC71{kills}'
+        - ' &#ECF0F1Deaths: &#E74C3C{deaths}'
+        - ' &#ECF0F1K/D: &#F39C12{kd}'
+        - ''
+        - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto manage!'
+        - ''
+    
+    # Back button
     back:
       slot: 49
       material: ARROW
+      name: '&#E74C3C← Back'
+      lore:
+        - '&#95A5A6Return to clan menu'
 
+# ====================================
+# Join Requests Menu
+# ====================================
+# Shows all pending join requests for the clan
 join-requests-menu:
   title: '&#34495EJoin Requests'
   size: 54
@@ -215,6 +410,7 @@ join-requests-menu:
     name: ' '
   
   items:
+    # Individual request item
     request-item:
       material: PLAYER_HEAD
       name: '&#3498DB{player}'
@@ -235,6 +431,7 @@ join-requests-menu:
         - ' &#E74C3CRight-Click to decline'
         - ''
     
+    # Back button
     back:
       slot: 49
       material: ARROW
@@ -242,6 +439,10 @@ join-requests-menu:
       lore:
         - '&#95A5A6Return to clan menu'
 
+# ====================================
+# Clan Details Menu (Browse)
+# ====================================
+# Shows details of a clan when browsing
 clan-details:
   title: '&#34495E{clan} Details'
   size: 27
@@ -251,10 +452,25 @@ clan-details:
     name: ' '
   
   items:
+    # Clan stats button (slot 11)
+    stats:
+      slot: 11
+      material: DIAMOND_SWORD
+      name: '&#E67E22&l⚔ Clan Statistics'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Total Kills: &#2ECC71{kills}'
+        - ' &#ECF0F1Total Deaths: &#E74C3C{deaths}'
+        - ' &#ECF0F1K/D Ratio: &#F39C12{kd}'
+        - ' &#ECF0F1Level: &#9B59B6{level}'
+        - ''
+    
+    # Clan info banner (slot 13)
     clan-info:
       slot: 13
-      material: PLAYER_HEAD
-      name: '&#3498DB{clan}'
+      material: BLACK_BANNER
+      name: '&#3498DB&l{clan}'
       lore:
         - '&#95A5A6&m                    '
         - ''
@@ -266,11 +482,10 @@ clan-details:
         - ' &#ECF0F1Total Deaths: &#E74C3C{deaths}'
         - ' &#ECF0F1K/D Ratio: &#F39C12{kd}'
         - ''
-        - ' &#ECF0F1Created: &#95A5A6{date}'
-        - ''
     
+    # Send join request button (slot 15)
     send-request:
-      slot: 11
+      slot: 15
       material: WRITABLE_BOOK
       name: '&#2ECC71&lSend Join Request'
       lore:
@@ -282,19 +497,17 @@ clan-details:
         - ''
         - '&#ECF0F1→ &#F1C40F&l&nCLICK &r&#F1C40Fto send!'
         - ''
-    
-    back:
-      slot: 15
-      material: BARRIER
-      name: '&#E74C3C← Back'
-      lore:
-        - '&#95A5A6Return to browse clans'
 
+# ====================================
+# Invitations Menu
+# ====================================
+# Shows all clan invitations for a player
 invitations:
   title: '&#34495EYour Invitations'
   size: 54
   
   items:
+    # Individual invitation item
     invitation-item:
       material: PAPER
       name: '&#3498DB{clan}'
@@ -308,41 +521,10 @@ invitations:
         - ' &#E74C3CRight-Click to decline'
         - ''
     
+    # Back button
     back:
       slot: 49
       material: BARRIER
       name: '&#E74C3C← Back'
       lore:
         - '&#95A5A6Return to main menu'
-
-join-requests:
-  title: '&#34495EJoin Requests'
-  size: 54
-  
-  items:
-    request-item:
-      material: PLAYER_HEAD
-      name: '&#3498DB{player}'
-      lore:
-        - '&#95A5A6&m                    '
-        - ''
-        - ' &#ECF0F1Message:'
-        - ' &#95A5A6"{message}"'
-        - ''
-        - ' &#ECF0F1Stats:'
-        - ' &#ECF0F1Kills: &#2ECC71{kills}'
-        - ' &#ECF0F1Deaths: &#E74C3C{deaths}'
-        - ' &#ECF0F1K/D: &#F39C12{kd}'
-        - ''
-        - ' &#ECF0F1Sent: &#95A5A6{time}'
-        - ''
-        - ' &#2ECC71Left-Click to accept'
-        - ' &#E74C3CRight-Click to decline'
-        - ''
-    
-    back:
-      slot: 49
-      material: BARRIER
-      name: '&#E74C3C← Back'
-      lore:
-        - '&#95A5A6Return to clan menu'

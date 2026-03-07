@@ -100,6 +100,8 @@ member:
 admin:
   disbands-clan: '{icon_success} &#E74C3CAdmin {admin} disbanded clan &f{clan}&#E74C3C!'
   clan-disbanded-by-admin: '{icon_error} &#E74C3CYour clan was disbanded by an admin!'
+  reloaded: '{icon_success} &#2ECC71ClanSystem configs reloaded!'
+=======
   
 level:
   up: '{icon_level} &#9B59B6Your clan leveled up to level &f{level}&#9B59B6! New tag: {tag}'

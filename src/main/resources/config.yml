@@ -1,28 +1,65 @@
+# ====================================
+# ClanSystem Configuration
+# ====================================
+# Main configuration file for ClanSystem plugin
+
+# Enable debug mode (shows additional console messages)
 debug: true
 
+# ====================================
+# Database Configuration
+# ====================================
+# Database connection settings
 database:
+  # Database type: SQLITE (file-based) or MYSQL (server-based)
   type: SQLITE
+  
+  # MySQL/MariaDB settings (only used if type is MYSQL)
   host: localhost
   port: 3306
   database: clansystem
   username: root
   password: password
+  
+  # Connection pool settings (for MYSQL)
   pool:
     maximum-size: 10
     minimum-idle: 2
     connection-timeout: 5000
 
+# ====================================
+# Clan Settings
+# ====================================
 clan:
+  # Maximum length for clan names
   max-name-length: 7
-  min-name-length: 3
-  max-members: 10
-  home-cooldown: 5
-  invitation-expiry-days: 3
-  join-request-expiry-days: 3
   
+  # Minimum length for clan names
+  min-name-length: 3
+  
+  # Maximum number of members allowed in a clan
+  max-members: 10
+  
+  # Cooldown in seconds between home teleports
+  home-cooldown: 5
+  
+  # Days before clan invitations expire
+  invitation-expiry-days: 3
+  
+  # Days before join requests expire
+  join-request-expiry-days: 3
+
+# ====================================
+# Level System
+# ====================================
+# Clan leveling based on total kills
 level:
+  # Enable or disable the leveling system
   enabled: true
   
+  # Level definitions
+  # Each level requires a certain number of total clan kills
+  # and grants a unique tag that appears with the clan name
   levels:
     1:
       required-kills: 0
@@ -55,7 +92,12 @@ level:
       required-kills: 5000
       tag: '&b&l[✪ Clan ✪]'
 
+# ====================================
+# GUI Configurations
+# ====================================
+# Basic GUI settings (detailed configs in guis.yml)
 gui:
+  # GUI shown to players without a clan
   no-clan:
     title: "&8Create or Join a Clan"
     size: 27
@@ -85,6 +127,7 @@ gui:
         - ""
         - "&aLeft-Click &7to view invitations"
   
+  # Browse clans GUI
   browse:
     title: "&8Browse Clans"
     clan-item:
@@ -98,6 +141,7 @@ gui:
         - ""
         - "&eClick to view details!"
   
+  # Clan details GUI (when viewing a clan)
   clan-details:
     title: "&8{clan} Details"
     info-button:
@@ -121,6 +165,7 @@ gui:
       material: "ARROW"
       name: "&cBack"
   
+  # Join requests menu
   join-requests:
     title: "&8Join Requests"
     request-item:
@@ -137,6 +182,7 @@ gui:
         - "&aLeft-Click &7to accept"
         - "&cRight-Click &7to decline"
   
+  # Player invitations menu
   invitations:
     title: "&8Clan Invitations"
     invitation-item:
@@ -150,12 +196,25 @@ gui:
         - "&aLeft-Click &7to accept"
         - "&cRight-Click &7to decline"
 
+# ====================================
+# Sound Effects
+# ====================================
+# All sound effects played by the plugin
 sounds:
+  # Enable or disable all sounds
   enabled: true
+  
+  # Success/positive actions
   success: ENTITY_EXPERIENCE_ORB_PICKUP
+  
+  # Error/negative actions
   error: ENTITY_VILLAGER_NO
+  
+  # UI interactions
   click: UI_BUTTON_CLICK
   open: BLOCK_CHEST_OPEN
+  
+  # Clan actions
   join: ENTITY_EXPERIENCE_ORB_PICKUP
   leave: BLOCK_IRON_DOOR_CLOSE
   kick: ENTITY_VILLAGER_NO
@@ -169,10 +228,16 @@ sounds:
   clan-join: ENTITY_EXPERIENCE_ORB_PICKUP
   clan-leave: BLOCK_IRON_DOOR_CLOSE
   clan-kick: ENTITY_VILLAGER_NO
+  
+  # Home system
   home-teleport: ENTITY_ENDERMAN_TELEPORT
   home-set: BLOCK_NOTE_BLOCK_PLING
   home-delete: BLOCK_FIRE_EXTINGUISH
+  
+  # Chat system
   chat-toggle-on: BLOCK_NOTE_BLOCK_PLING
   chat-toggle-off: BLOCK_NOTE_BLOCK_BASS
+  
+  # Invitation system
   invite-send: ENTITY_ARROW_HIT_PLAYER
   invite-receive: ENTITY_EXPERIENCE_ORB_PICKUP

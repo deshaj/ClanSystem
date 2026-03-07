@@ -10,11 +10,14 @@ import com.clansystem.util.ColorUtil;
 import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,169 +26,55 @@ import java.util.Map;
 public class ClanMainGUI extends InventoryGUI {
     private final ClanSystem plugin;
     private final Clan clan;
+    private FileConfiguration guiConfig;
     
     public ClanMainGUI(ClanSystem plugin, Clan clan) {
         this.plugin = plugin;
         this.clan = clan;
+        loadGuiConfig();
+    }
+    
+    private void loadGuiConfig() {
+        File file = new File(plugin.getDataFolder(), "guis.yml");
+        if (file.exists()) {
+            guiConfig = YamlConfiguration.loadConfiguration(file);
+        }
     }
     
     @Override
     protected Inventory createInventory() {
-        String title = plugin.getMessageManager().getMessage("gui.main-title");
-        return Bukkit.createInventory(null, 27, title);
+        String title = guiConfig != null ? guiConfig.getString("main-menu.title", "&#34495EClan Menu") : "&#34495EClan Menu";
+        int size = guiConfig != null ? guiConfig.getInt("main-menu.size", 45) : 45;
+        return Bukkit.createInventory(null, size, plugin.getMessageManager().format(title));
     }
     
     @Override
     public void decorate(Player player) {
         addFillerGlass();
-        
-        int maxMembers = plugin.getConfigManager().maxMembers();
-        Map<String, String> memberPlaceholders = new HashMap<>();
-        memberPlaceholders.put("count", String.valueOf(clan.getMemberCount()));
-        memberPlaceholders.put("max", String.valueOf(maxMembers));
-        
-        int membersSlot = plugin.getConfigManager().getInt("gui.main-menu.items.members.slot", 11);
-        String membersMaterial = plugin.getConfigManager().getString("gui.main-menu.items.members.material", "PLAYER_HEAD");
-        addButton(membersSlot, new InventoryButton()
-            .creator(p -> {
-                String name = plugin.getMessageManager().getMessage("gui.items.members.name");
-                return createItemWithLore(membersMaterial, name, 
-                    plugin.getMessageManager().getLore("gui.items.members.lore", memberPlaceholders));
-            })
-            .consumer(event -> {
-                Player clicker = (Player) event.getWhoClicked();
-                plugin.getGuiManager().openGUI(new ClanMembersGUI(plugin, clan), clicker);
-            })
-        );
-        
-        int level = plugin.getLevelManager().calculateLevel(clan);
-        double kd = clan.getTotalDeaths() > 0 ? 
-            Math.round((double) clan.getTotalKills() / clan.getTotalDeaths() * 100.0) / 100.0 : clan.getTotalKills();
-        
-        Map<String, String> statsPlaceholders = new HashMap<>();
-        statsPlaceholders.put("kills", String.valueOf(clan.getTotalKills()));
-        statsPlaceholders.put("deaths", String.valueOf(clan.getTotalDeaths()));
-        statsPlaceholders.put("kd", String.valueOf(kd));
-        statsPlaceholders.put("level", String.valueOf(level));
-        
-        int statsSlot = plugin.getConfigManager().getInt("gui.main-menu.items.stats.slot", 13);
-        String statsMaterial = plugin.getConfigManager().getString("gui.main-menu.items.stats.material", "DIAMOND_SWORD");
-        addButton(statsSlot, new InventoryButton()
-            .creator(p -> {
-                String name = plugin.getMessageManager().getMessage("gui.items.stats.name");
-                return createItemWithLore(statsMaterial, name,
-                    plugin.getMessageManager().getLore("gui.items.stats.lore", statsPlaceholders));
-            })
-            .consumer(event -> {
-                Player clicker = (Player) event.getWhoClicked();
-                plugin.getGuiManager().openGUI(new ClanStatsGUI(plugin, clan), clicker);
-            })
-        );
-        
-        int joinRequestsSlot = plugin.getConfigManager().getInt("gui.main-menu.items.join-requests.slot", 9);
-        String joinRequestsMaterial = plugin.getConfigManager().getString("gui.main-menu.items.join-requests.material", "WRITABLE_BOOK");
-        ClanMember member = clan.getMember(player.getUniqueId());
-        if (member != null && (member.getRank() == ClanRank.OWNER || member.getRank() == ClanRank.MOD)) {
-            addButton(joinRequestsSlot, new InventoryButton()
-                .creator(p -> {
-                    int requestCount = plugin.getInvitationManager().getClanRequests(clan.getId()).size();
-                    String name = plugin.getMessageManager().getMessage("gui.items.join-requests.name", 
-                        Map.of("count", String.valueOf(requestCount)));
-                    return createItemWithLore(joinRequestsMaterial, name,
-                        plugin.getMessageManager().getLore("gui.items.join-requests.lore", Map.of("count", String.valueOf(requestCount))));
-                })
-                .consumer(event -> {
-                    Player clicker = (Player) event.getWhoClicked();
-                    plugin.getGuiManager().openGUI(new JoinRequestsGUI(plugin, clicker, clan), clicker);
-                })
-            );
-        } else {
-            addButton(joinRequestsSlot, new InventoryButton()
-                .creator(p -> {
-                    String name = plugin.getMessageManager().getMessage("gui.items.join-requests.name", 
-                        Map.of("count", "0"));
-                    List<String> noPermLore = new ArrayList<>();
-                    noPermLore.add(ColorUtil.colorize("&#95A5A6&m                    "));
-                    noPermLore.add("");
-                    noPermLore.add(ColorUtil.colorize(" &#E74C3CYou don't have permission"));
-                    noPermLore.add(ColorUtil.colorize(" &#E74C3Cto view join requests."));
-                    noPermLore.add("");
-                    noPermLore.add(ColorUtil.colorize(" &#95A5A6Only &fOwner &#95A5A6and &fMods"));
-                    noPermLore.add(ColorUtil.colorize(" &#95A5A6can manage requests."));
-                    noPermLore.add("");
-                    return createItemWithLore(joinRequestsMaterial, name, noPermLore);
-                })
-                .consumer(event -> {
-                    Player clicker = (Player) event.getWhoClicked();
-                    plugin.getMessageManager().send(clicker, "clan.only-owner-mod");
-                    plugin.getSoundManager().play(clicker, "error");
-                })
-            );
-        }
+        addPvpButton();
+        addMembersButton();
+        addHomeButton();
+        addStatsButton();
+        addLookupButton();
+        addJoinRequestsButton(player);
+        addDisbandButton(player);
+        super.decorate(player);
+    }
 
-        int homeSlot = plugin.getConfigManager().getInt("gui.main-menu.items.home.slot", 15);
-        String homeSetMaterial = plugin.getConfigManager().getString("gui.main-menu.items.home.material-set", "RED_BED");
-        String homeNotSetMaterial = plugin.getConfigManager().getString("gui.main-menu.items.home.material-not-set", "WHITE_BED");
-        addButton(homeSlot, new InventoryButton()
-            .creator(p -> {
-                String name = plugin.getMessageManager().getMessage("gui.items.home.name");
-                if (clan.getHome() != null) {
-                    String status = plugin.getMessageManager().getMessage("gui.items.home.status-set");
-                    Map<String, String> homePlaceholders = new HashMap<>();
-                    homePlaceholders.put("status", status);
-                    return createItemWithLore(homeSetMaterial, name,
-                        plugin.getMessageManager().getLore("gui.items.home.lore", homePlaceholders));
-                } else {
-                    return createItemWithLore(homeNotSetMaterial, name,
-                        plugin.getMessageManager().getLore("gui.items.home.no-home-lore"));
-                }
-            })
-            .consumer(event -> {
-                Player clicker = (Player) event.getWhoClicked();
-                if (clan.getHome() == null) {
-                    if (clan.canManageMembers(clicker.getUniqueId())) {
-                        plugin.getHomeManager().setHome(clan, clicker.getLocation());
-                        plugin.getMessageManager().send(clicker, "home.set-gui");
-                        plugin.getSoundManager().play(clicker, "home-set");
-                        clicker.closeInventory();
-                        plugin.getFoliaLib().getImpl().runLater(() -> {
-                            plugin.getGuiManager().openGUI(new ClanMainGUI(plugin, clan), clicker);
-                        }, 2L);
-                    } else {
-                        plugin.getMessageManager().send(clicker, "home.no-home");
-                    }
-                    return;
-                }
-                if (plugin.getHomeManager().hasCooldown(clicker.getUniqueId())) {
-                    long remaining = plugin.getHomeManager().getRemainingCooldown(clicker.getUniqueId());
-                    plugin.getMessageManager().send(clicker, "home.cooldown",
-                        Map.of("time", String.valueOf(remaining)));
-                    return;
-                }
-                plugin.getHomeManager().teleportHome(clicker, clan);
-                plugin.getMessageManager().send(clicker, "home.teleporting");
-                clicker.closeInventory();
-            })
-        );
-        
-        int pvpSlot = plugin.getConfigManager().getInt("gui.main-menu.items.pvp.slot", 20);
-        String pvpEnabledMaterial = plugin.getConfigManager().getString("gui.main-menu.items.pvp.material-enabled", "DIAMOND_SWORD");
-        String pvpDisabledMaterial = plugin.getConfigManager().getString("gui.main-menu.items.pvp.material-disabled", "WOODEN_SWORD");
-        addButton(pvpSlot, new InventoryButton()
-            .creator(p -> {
-                String name = plugin.getMessageManager().getMessage("gui.items.pvp.name");
-                if (clan.isPvpEnabled()) {
-                    return createItemWithLore(pvpEnabledMaterial, name,
-                        plugin.getMessageManager().getLore("gui.items.pvp.lore-enabled"));
-                } else {
-                    return createItemWithLore(pvpDisabledMaterial, name,
-                        plugin.getMessageManager().getLore("gui.items.pvp.lore-disabled"));
-                }
-            })
+    private void addPvpButton() {
+        int slot = guiConfig != null ? guiConfig.getInt("main-menu.items.pvp-enabled.slot", 11) : 11;
+        String key = clan.isPvpEnabled() ? "pvp-enabled" : "pvp-disabled";
+        String materialName = guiConfig != null ? guiConfig.getString("main-menu.items." + key + ".material") : (clan.isPvpEnabled() ? "DIAMOND_AXE" : "IRON_AXE");
+        String name = guiConfig != null ? guiConfig.getString("main-menu.items." + key + ".name") : "&#E74C3C&l⚔ Clan PvP";
+        List<String> lore = guiConfig != null ? guiConfig.getStringList("main-menu.items." + key + ".lore") : new ArrayList<>();
+
+        addButton(slot, new InventoryButton()
+            .creator(p -> createItem(materialName, name, lore))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
                 if (!clan.isOwner(clicker.getUniqueId())) {
                     plugin.getMessageManager().send(clicker, "clan.only-owner");
+                    plugin.getSoundManager().play(clicker, "error");
                     return;
                 }
                 clan.setPvpEnabled(!clan.isPvpEnabled());
@@ -199,45 +88,188 @@ public class ClanMainGUI extends InventoryGUI {
                 }, 2L);
             })
         );
+    }
 
-        int lookupSlot = plugin.getConfigManager().getInt("gui.main-menu.items.lookup.slot", 22);
-        String lookupMaterial = plugin.getConfigManager().getString("gui.main-menu.items.lookup.material", "COMPASS");
-        addButton(lookupSlot, new InventoryButton()
+    private void addMembersButton() {
+        int slot = guiConfig != null ? guiConfig.getInt("main-menu.items.members.slot", 13) : 13;
+        String materialName = guiConfig != null ? guiConfig.getString("main-menu.items.members.material", "PLAYER_HEAD") : "PLAYER_HEAD";
+        String name = guiConfig != null ? guiConfig.getString("main-menu.items.members.name") : "&#3498DB&l👥 Clan Members";
+        List<String> loreTemplate = guiConfig != null ? guiConfig.getStringList("main-menu.items.members.lore") : new ArrayList<>();
+
+        addButton(slot, new InventoryButton()
             .creator(p -> {
-                String name = plugin.getMessageManager().getMessage("gui.items.lookup.name");
-                return createItemWithLore(lookupMaterial, name,
-                    plugin.getMessageManager().getLore("gui.items.lookup.lore"));
+                int maxMembers = plugin.getConfigManager().maxMembers();
+                List<String> lore = new ArrayList<>();
+                for (String line : loreTemplate) {
+                    line = line.replace("{count}", String.valueOf(clan.getMemberCount()))
+                        .replace("{max}", String.valueOf(maxMembers));
+                    lore.add(line);
+                }
+                return createItem(materialName, name, lore);
             })
+            .consumer(event -> {
+                Player clicker = (Player) event.getWhoClicked();
+                plugin.getGuiManager().openGUI(new ClanMembersGUI(plugin, clan), clicker);
+            })
+        );
+    }
+
+    private void addHomeButton() {
+        int slot = guiConfig != null ? guiConfig.getInt("main-menu.items.home-set.slot", 15) : 15;
+        String key = clan.getHome() != null ? "home-set" : "home-not-set";
+        String materialName = guiConfig != null ? guiConfig.getString("main-menu.items." + key + ".material") : (clan.getHome() != null ? "RED_BED" : "WHITE_BED");
+        String name = guiConfig != null ? guiConfig.getString("main-menu.items." + key + ".name") : "&#F1C40F&l⌂ Clan Home";
+        List<String> lore = guiConfig != null ? guiConfig.getStringList("main-menu.items." + key + ".lore") : new ArrayList<>();
+
+        addButton(slot, new InventoryButton()
+            .creator(p -> createItem(materialName, name, lore))
+            .consumer(event -> {
+                Player clicker = (Player) event.getWhoClicked();
+                if (clan.getHome() == null) {
+                    if (clan.canManageMembers(clicker.getUniqueId())) {
+                        plugin.getHomeManager().setHome(clan, clicker.getLocation());
+                        plugin.getMessageManager().send(clicker, "home.set-gui");
+                        plugin.getSoundManager().play(clicker, "home-set");
+                        clicker.closeInventory();
+                        plugin.getFoliaLib().getImpl().runLater(() -> {
+                            plugin.getGuiManager().openGUI(new ClanMainGUI(plugin, clan), clicker);
+                        }, 2L);
+                    } else {
+                        plugin.getMessageManager().send(clicker, "home.no-home");
+                        plugin.getSoundManager().play(clicker, "error");
+                    }
+                    return;
+                }
+                if (plugin.getHomeManager().hasCooldown(clicker.getUniqueId())) {
+                    long remaining = plugin.getHomeManager().getRemainingCooldown(clicker.getUniqueId());
+                    plugin.getMessageManager().send(clicker, "home.cooldown",
+                        Map.of("time", String.valueOf(remaining)));
+                    plugin.getSoundManager().play(clicker, "error");
+                    return;
+                }
+                plugin.getHomeManager().teleportHome(clicker, clan);
+                plugin.getMessageManager().send(clicker, "home.teleporting");
+                plugin.getSoundManager().play(clicker, "home-teleport");
+                clicker.closeInventory();
+            })
+        );
+    }
+
+    private void addStatsButton() {
+        int slot = guiConfig != null ? guiConfig.getInt("main-menu.items.stats.slot", 20) : 20;
+        String materialName = guiConfig != null ? guiConfig.getString("main-menu.items.stats.material", "DIAMOND_SWORD") : "DIAMOND_SWORD";
+        String name = guiConfig != null ? guiConfig.getString("main-menu.items.stats.name") : "&#E67E22&l⚔ Clan Statistics";
+        List<String> loreTemplate = guiConfig != null ? guiConfig.getStringList("main-menu.items.stats.lore") : new ArrayList<>();
+
+        addButton(slot, new InventoryButton()
+            .creator(p -> {
+                int level = plugin.getLevelManager().calculateLevel(clan);
+                double kd = clan.getTotalDeaths() > 0 ? 
+                    Math.round((double) clan.getTotalKills() / clan.getTotalDeaths() * 100.0) / 100.0 : clan.getTotalKills();
+                
+                List<String> lore = new ArrayList<>();
+                for (String line : loreTemplate) {
+                    line = line.replace("{kills}", String.valueOf(clan.getTotalKills()))
+                        .replace("{deaths}", String.valueOf(clan.getTotalDeaths()))
+                        .replace("{kd}", String.valueOf(kd))
+                        .replace("{level}", String.valueOf(level));
+                    lore.add(line);
+                }
+                return createItem(materialName, name, lore);
+            })
+            .consumer(event -> {
+                Player clicker = (Player) event.getWhoClicked();
+                plugin.getGuiManager().openGUI(new ClanStatsGUI(plugin, clan), clicker);
+            })
+        );
+    }
+
+    private void addLookupButton() {
+        int slot = guiConfig != null ? guiConfig.getInt("main-menu.items.lookup.slot", 22) : 22;
+        String materialName = guiConfig != null ? guiConfig.getString("main-menu.items.lookup.material", "COMPASS") : "COMPASS";
+        String name = guiConfig != null ? guiConfig.getString("main-menu.items.lookup.name") : "&#3498DB&l🔍 Browse Clans";
+        List<String> lore = guiConfig != null ? guiConfig.getStringList("main-menu.items.lookup.lore") : new ArrayList<>();
+
+        addButton(slot, new InventoryButton()
+            .creator(p -> createItem(materialName, name, lore))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
                 plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, 1), clicker, false);
             })
         );
-        
-        if (clan.isOwner(player.getUniqueId())) {
-            int disbandSlot = plugin.getConfigManager().getInt("gui.main-menu.items.disband.slot", 26);
-            String disbandMaterial = plugin.getConfigManager().getString("gui.main-menu.items.disband.material", "TNT");
-            addButton(disbandSlot, new InventoryButton()
-                .creator(p -> createItemWithLore(disbandMaterial, 
-                    ColorUtil.colorize("&c&lDisband Clan"),
-                    List.of(ColorUtil.colorize("&7Click to disband your clan"), 
-                            ColorUtil.colorize("&c&lWarning: This cannot be undone!"))))
+    }
+
+    private void addJoinRequestsButton(Player player) {
+        int slot = guiConfig != null ? guiConfig.getInt("main-menu.items.join-requests.slot", 24) : 24;
+        String materialName = guiConfig != null ? guiConfig.getString("main-menu.items.join-requests.material", "WRITABLE_BOOK") : "WRITABLE_BOOK";
+        String name = guiConfig != null ? guiConfig.getString("main-menu.items.join-requests.name") : "&#F39C12&lJoin Requests";
+        List<String> loreTemplate = guiConfig != null ? guiConfig.getStringList("main-menu.items.join-requests.lore") : new ArrayList<>();
+
+        ClanMember member = clan.getMember(player.getUniqueId());
+        if (member != null && (member.getRank() == ClanRank.OWNER || member.getRank() == ClanRank.MOD)) {
+            addButton(slot, new InventoryButton()
+                .creator(p -> {
+                    int requestCount = plugin.getInvitationManager().getClanRequests(clan.getId()).size();
+                    String finalName = name.replace("{count}", String.valueOf(requestCount));
+                    List<String> lore = new ArrayList<>();
+                    for (String line : loreTemplate) {
+                        line = line.replace("{count}", String.valueOf(requestCount));
+                        lore.add(line);
+                    }
+                    return createItem(materialName, finalName, lore);
+                })
                 .consumer(event -> {
                     Player clicker = (Player) event.getWhoClicked();
-                    plugin.getGuiManager().openGUI(new ConfirmDisbandGUI(plugin, clan), clicker, false);
+                    plugin.getGuiManager().openGUI(new JoinRequestsGUI(plugin, clicker, clan), clicker);
+                })
+            );
+        } else {
+            addButton(slot, new InventoryButton()
+                .creator(p -> {
+                    String finalName = name.replace("{count}", "0");
+                    List<String> noPermLore = new ArrayList<>();
+                    noPermLore.add(ColorUtil.colorize("&#95A5A6&m                    "));
+                    noPermLore.add("");
+                    noPermLore.add(ColorUtil.colorize(" &#E74C3CYou don't have permission"));
+                    noPermLore.add(ColorUtil.colorize(" &#E74C3Cto view join requests."));
+                    noPermLore.add("");
+                    noPermLore.add(ColorUtil.colorize(" &#95A5A6Only &fOwner &#95A5A6and &fMods"));
+                    noPermLore.add(ColorUtil.colorize(" &#95A5A6can manage requests."));
+                    noPermLore.add("");
+                    return createItem(materialName, finalName, noPermLore);
+                })
+                .consumer(event -> {
+                    Player clicker = (Player) event.getWhoClicked();
+                    plugin.getMessageManager().send(clicker, "clan.only-owner-mod");
+                    plugin.getSoundManager().play(clicker, "error");
                 })
             );
         }
+    }
+
+    private void addDisbandButton(Player player) {
+        if (!clan.isOwner(player.getUniqueId())) return;
         
-        super.decorate(player);
+        int slot = guiConfig != null ? guiConfig.getInt("main-menu.items.disband.slot", 44) : 44;
+        String materialName = guiConfig != null ? guiConfig.getString("main-menu.items.disband.material", "TNT_MINECART") : "TNT_MINECART";
+        String name = guiConfig != null ? guiConfig.getString("main-menu.items.disband.name") : "&#E74C3C&l✖ Disband Clan";
+        List<String> lore = guiConfig != null ? guiConfig.getStringList("main-menu.items.disband.lore") : new ArrayList<>();
+
+        addButton(slot, new InventoryButton()
+            .creator(p -> createItem(materialName, name, lore))
+            .consumer(event -> {
+                Player clicker = (Player) event.getWhoClicked();
+                plugin.getGuiManager().openGUI(new ConfirmDisbandGUI(plugin, clan), clicker, false);
+            })
+        );
     }
 
     private void addFillerGlass() {
-        boolean enabled = plugin.getConfigManager().getBoolean("gui.main-menu.filler.enabled", true);
+        boolean enabled = guiConfig != null && guiConfig.getBoolean("main-menu.filler.enabled", true);
         if (!enabled) return;
 
-        String materialName = plugin.getConfigManager().getString("gui.main-menu.filler.material", "GRAY_STAINED_GLASS_PANE");
-        String name = plugin.getConfigManager().getString("gui.main-menu.filler.name", " ");
+        String materialName = guiConfig != null ? guiConfig.getString("main-menu.filler.material", "GRAY_STAINED_GLASS_PANE") : "GRAY_STAINED_GLASS_PANE";
+        String name = guiConfig != null ? guiConfig.getString("main-menu.filler.name", " ") : " ";
         
         ItemStack filler = XMaterial.matchXMaterial(materialName).map(XMaterial::parseItem).orElse(null);
         if (filler == null) return;
@@ -248,37 +280,37 @@ public class ClanMainGUI extends InventoryGUI {
             filler.setItemMeta(meta);
         }
 
-        List<Integer> fillerSlots = plugin.getConfigManager().getIntList("gui.main-menu.filler.slots");
-        if (fillerSlots.isEmpty()) {
-            int joinRequestsSlot2 = plugin.getConfigManager().getInt("gui.main-menu.items.join-requests.slot", 9);
-            int membersSlot2 = plugin.getConfigManager().getInt("gui.main-menu.items.members.slot", 11);
-            int statsSlot2 = plugin.getConfigManager().getInt("gui.main-menu.items.stats.slot", 13);
-            int homeSlot2 = plugin.getConfigManager().getInt("gui.main-menu.items.home.slot", 15);
-            int pvpSlot2 = plugin.getConfigManager().getInt("gui.main-menu.items.pvp.slot", 20);
-            int lookupSlot2 = plugin.getConfigManager().getInt("gui.main-menu.items.lookup.slot", 22);
-            int disbandSlot2 = plugin.getConfigManager().getInt("gui.main-menu.items.disband.slot", 26);
-            
-            for (int i = 0; i < getInventory().getSize(); i++) {
-                if (i != joinRequestsSlot2 && i != membersSlot2 && i != statsSlot2 && i != homeSlot2 && i != pvpSlot2 && i != lookupSlot2 && i != disbandSlot2) {
-                    getInventory().setItem(i, filler);
-                }
-            }
-        } else {
-            for (int slot : fillerSlots) {
-                if (slot >= 0 && slot < getInventory().getSize()) {
-                    getInventory().setItem(slot, filler);
-                }
+        int pvpSlot = guiConfig != null ? guiConfig.getInt("main-menu.items.pvp-enabled.slot", 11) : 11;
+        int membersSlot = guiConfig != null ? guiConfig.getInt("main-menu.items.members.slot", 13) : 13;
+        int homeSlot = guiConfig != null ? guiConfig.getInt("main-menu.items.home-set.slot", 15) : 15;
+        int statsSlot = guiConfig != null ? guiConfig.getInt("main-menu.items.stats.slot", 20) : 20;
+        int lookupSlot = guiConfig != null ? guiConfig.getInt("main-menu.items.lookup.slot", 22) : 22;
+        int requestsSlot = guiConfig != null ? guiConfig.getInt("main-menu.items.join-requests.slot", 24) : 24;
+        int disbandSlot = guiConfig != null ? guiConfig.getInt("main-menu.items.disband.slot", 44) : 44;
+        
+        for (int i = 0; i < getInventory().getSize(); i++) {
+            if (i != pvpSlot && i != membersSlot && i != homeSlot && i != statsSlot && 
+                i != lookupSlot && i != requestsSlot && i != disbandSlot) {
+                getInventory().setItem(i, filler);
             }
         }
     }
     
-    private ItemStack createItemWithLore(String materialName, String name, List<String> lore) {
+    private ItemStack createItem(String materialName, String name, List<String> lore) {
         ItemStack item = XMaterial.matchXMaterial(materialName).map(XMaterial::parseItem)
             .orElse(new ItemStack(Material.STONE));
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(name);
-        meta.setLore(lore);
-        item.setItemMeta(meta);
+        if (meta != null) {
+            meta.setDisplayName(plugin.getMessageManager().format(name));
+            
+            List<String> formattedLore = new ArrayList<>();
+            for (String line : lore) {
+                formattedLore.add(plugin.getMessageManager().format(line));
+            }
+            meta.setLore(formattedLore);
+            
+            item.setItemMeta(meta);
+        }
         return item;
     }
 }
