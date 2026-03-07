@@ -79,19 +79,23 @@ public class JoinRequestsGUI extends InventoryGUI {
     }
 
     private void loadJoinRequests() {
-        List<JoinRequest> requests = plugin.getInvitationManager().getClanRequests(clan.getId());
-        int slot = 0;
-        for (JoinRequest request : requests) {
-            if (slot >= 45) break;
-            addRequestButton(slot, request);
-            slot++;
-        }
+        plugin.getInvitationManager().loadClanRequests(clan.getId()).thenRun(() -> {
+            plugin.getFoliaLib().getImpl().runLater(() -> {
+                List<JoinRequest> requests = plugin.getInvitationManager().getClanRequests(clan.getId());
+                int slot = 0;
+                for (JoinRequest request : requests) {
+                    if (slot >= 45) break;
+                    addRequestButton(slot, request);
+                    slot++;
+                }
+            }, 1L);
+        });
     }
 
     private void addRequestButton(int slot, JoinRequest request) {
         OfflinePlayer requester = Bukkit.getOfflinePlayer(request.getPlayerId());
-        String name = plugin.getConfigManager().getString("gui.join-requests.request-item.name", "&e{player}");
-        List<String> lore = plugin.getConfigManager().getStringList("gui.join-requests.request-item.lore");
+        String name = plugin.getConfigManager().getString("gui.join-requests-menu.items.request-item.name", "&e{player}");
+        List<String> lore = plugin.getConfigManager().getStringList("gui.join-requests-menu.items.request-item.lore");
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm");
         String timeAgo = getTimeAgo(request.getTimestamp());
@@ -131,40 +135,70 @@ public class JoinRequestsGUI extends InventoryGUI {
 
         Player onlineRequester = requester.getPlayer();
         if (onlineRequester == null) {
-            plugin.getMessageManager().send(player, "clan.player-not-found");
-            return;
+            plugin.getPlayerRepository().addPendingNotification(request.getPlayerId(), "ACCEPTED", clan.getName());
         }
 
-        plugin.getClanManager().addMember(clan, onlineRequester, com.clansystem.data.ClanRank.MEMBER).thenRun(() -> {
+        if (onlineRequester != null) {
+            plugin.getClanManager().addMember(clan, onlineRequester, com.clansystem.data.ClanRank.MEMBER).thenRun(() -> {
+                plugin.getInvitationManager().removeRequest(request.getId());
+                plugin.getRequestRepository().removeRequest(request.getPlayerId(), clan.getId());
+                String requesterName = requester.getName() != null ? requester.getName() : "Unknown";
+                
+                plugin.getFoliaLib().getImpl().runLater(() -> {
+                    plugin.getMessageManager().send(player, "gui.join-request-accepted", Map.of("player", requesterName));
+                    plugin.getMessageManager().send(onlineRequester, "invitation.accepted", Map.of("clan", clan.getName()));
+
+                    XSound.matchXSound(plugin.getConfigManager().getString("sounds.join", "ENTITY_EXPERIENCE_ORB_PICKUP"))
+                        .ifPresent(sound -> {
+                            sound.play(player);
+                            sound.play(onlineRequester);
+                        });
+
+                    if (player.getOpenInventory().getTopInventory().equals(getInventory())) {
+                        getInventory().clear();
+                        decorate(player);
+                    }
+                }, 1L);
+            });
+        } else {
             plugin.getInvitationManager().removeRequest(request.getId());
+            plugin.getRequestRepository().removeRequest(request.getPlayerId(), clan.getId());
             String requesterName = requester.getName() != null ? requester.getName() : "Unknown";
-            plugin.getMessageManager().send(player, "gui.join-request-accepted", Map.of("player", requesterName));
-            plugin.getMessageManager().send(onlineRequester, "clan.joined", Map.of("clan", clan.getName()));
-
-            XSound.matchXSound(plugin.getConfigManager().getString("sounds.join", "ENTITY_EXPERIENCE_ORB_PICKUP"))
-                .ifPresent(sound -> {
-                    sound.play(player);
-                    sound.play(onlineRequester);
-                });
-
+            
             plugin.getFoliaLib().getImpl().runLater(() -> {
+                plugin.getMessageManager().send(player, "gui.join-request-accepted", Map.of("player", requesterName));
+
+                XSound.matchXSound(plugin.getConfigManager().getString("sounds.join", "ENTITY_EXPERIENCE_ORB_PICKUP"))
+                    .ifPresent(sound -> sound.play(player));
+
                 if (player.getOpenInventory().getTopInventory().equals(getInventory())) {
                     getInventory().clear();
                     decorate(player);
                 }
             }, 1L);
-        });
+        }
     }
 
     private void declineRequest(JoinRequest request, OfflinePlayer requester) {
+        Player onlineRequester = requester.getPlayer();
+        if (onlineRequester == null) {
+            plugin.getPlayerRepository().addPendingNotification(request.getPlayerId(), "DECLINED", clan.getName());
+        }
+        
         plugin.getInvitationManager().removeRequest(request.getId());
+        plugin.getRequestRepository().removeRequest(request.getPlayerId(), clan.getId());
         String requesterName = requester.getName() != null ? requester.getName() : "Unknown";
-        plugin.getMessageManager().send(player, "gui.join-request-declined", Map.of("player", requesterName));
-
-        XSound.matchXSound(plugin.getConfigManager().getString("sounds.click", "UI_BUTTON_CLICK"))
-            .ifPresent(sound -> sound.play(player));
-
+        
         plugin.getFoliaLib().getImpl().runLater(() -> {
+            plugin.getMessageManager().send(player, "gui.join-request-declined", Map.of("player", requesterName));
+            
+            if (onlineRequester != null) {
+                plugin.getMessageManager().send(onlineRequester, "invitation.declined", Map.of("clan", clan.getName()));
+            }
+
+            XSound.matchXSound(plugin.getConfigManager().getString("sounds.click", "UI_BUTTON_CLICK"))
+                .ifPresent(sound -> sound.play(player));
+
             if (player.getOpenInventory().getTopInventory().equals(getInventory())) {
                 getInventory().clear();
                 decorate(player);
@@ -173,10 +207,10 @@ public class JoinRequestsGUI extends InventoryGUI {
     }
 
     private void addBackButton() {
-        int slot = plugin.getConfigManager().getInt("gui.join-requests.back-button.slot", 49);
-        String materialName = plugin.getConfigManager().getString("gui.join-requests.back-button.material", "ARROW");
-        String name = plugin.getConfigManager().getString("gui.join-requests.back-button.name", "&c← Back");
-        List<String> lore = plugin.getConfigManager().getStringList("gui.join-requests.back-button.lore");
+        int slot = plugin.getConfigManager().getInt("gui.join-requests-menu.items.back.slot", 49);
+        String materialName = plugin.getConfigManager().getString("gui.join-requests-menu.items.back.material", "ARROW");
+        String name = plugin.getConfigManager().getString("gui.join-requests-menu.items.back.name", "&c← Back");
+        List<String> lore = plugin.getConfigManager().getStringList("gui.join-requests-menu.items.back.lore");
 
         addButton(slot, new InventoryButton()
             .creator(p -> createItem(materialName, name, lore))

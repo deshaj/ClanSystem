@@ -25,6 +25,7 @@ public abstract class InventoryGUI implements InventoryHandler {
     }
     
     public void addButton(int slot, InventoryButton button) {
+        System.out.println("[DEBUG] Adding button to slot " + slot + " in " + this.getClass().getSimpleName());
         this.buttonMap.put(slot, button);
     }
     
@@ -40,6 +41,7 @@ public abstract class InventoryGUI implements InventoryHandler {
         event.setCancelled(true);
         int slot = event.getSlot();
         InventoryButton button = this.buttonMap.get(slot);
+        System.out.println("[DEBUG] InventoryGUI click: slot=" + slot + ", button exists=" + (button != null) + ", GUI class=" + this.getClass().getSimpleName());
         if (button != null) {
             button.getEventConsumer().accept(event);
         }

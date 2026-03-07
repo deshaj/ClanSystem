@@ -89,24 +89,6 @@ public class ClanDetailsGUI extends InventoryGUI {
             })
         );
 
-        addButton(15, new InventoryButton()
-            .creator(p -> {
-                String materialName = plugin.getConfigManager().getConfig().getString("gui.clan-details.back-button.material", "ARROW");
-                ItemStack item = XMaterial.matchXMaterial(materialName).map(XMaterial::parseItem).orElse(new ItemStack(XMaterial.ARROW.parseMaterial()));
-                ItemMeta meta = item.getItemMeta();
-                if (meta != null) {
-                    String name = plugin.getConfigManager().getConfig().getString("gui.clan-details.back-button.name", "Back");
-                    meta.setDisplayName(plugin.getMessageManager().color(name));
-                    item.setItemMeta(meta);
-                }
-                return item;
-            })
-            .consumer(event -> {
-                Player clicker = (Player) event.getWhoClicked();
-                plugin.getGuiManager().openGUI(new BrowseClansGUI(plugin), clicker);
-            })
-        );
-
         super.decorate(player);
     }
 

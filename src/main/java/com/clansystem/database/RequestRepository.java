@@ -113,4 +113,16 @@ public class RequestRepository {
             return requests;
         });
     }
+
+    public CompletableFuture<Void> removeAllRequestsByPlayer(UUID playerUUID) {
+        return database.executeAsync(conn -> {
+            try (PreparedStatement stmt = conn.prepareStatement(
+                "DELETE FROM join_requests WHERE player_uuid = ?"
+            )) {
+                stmt.setString(1, playerUUID.toString());
+                int deleted = stmt.executeUpdate();
+                plugin.debug("Removed " + deleted + " join requests for player " + playerUUID);
+            }
+        });
+    }
 }

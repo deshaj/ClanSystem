@@ -81,21 +81,27 @@ public class ClanLookupGUI extends InventoryGUI {
         for (int i = startIndex; i < endIndex; i++) {
             Clan clan = allClans.get(i);
             int slot = i - startIndex;
-            
-            addButton(slot, new InventoryButton()
-                .creator(p -> createClanItemForPlayer(p, clan))
-                .consumer(event -> {
-                    Player clicker = (Player) event.getWhoClicked();
-                    if (event.isLeftClick()) {
-                        BrowseClanDetailsGUI detailsGUI = new BrowseClanDetailsGUI(plugin, clicker, clan, page);
-                        plugin.getGuiManager().openGUI(detailsGUI, clicker);
-                    } else if (event.isRightClick()) {
-                        clicker.closeInventory();
-                        plugin.getMessageManager().send(clicker, "invitation.prompt-join-message");
-                        plugin.getClanChatManager().setSendingJoinRequest(clicker.getUniqueId(), clan.getId());
-                    }
-                })
-            );
+addButton(slot, new InventoryButton()
+    .creator(p -> createClanItemForPlayer(p, clan))
+    .consumer(event -> {
+        Player clicker = (Player) event.getWhoClicked();
+
+        plugin.debug("ClanLookupGUI: Clan clicked - Left:" + event.isLeftClick() + 
+                     " Right:" + event.isRightClick() + 
+                     " Clan: " + clan.getName());
+
+        if (event.isLeftClick()) {
+            plugin.debug("ClanLookupGUI: Opening BrowseClanDetailsGUI for " + clan.getName());
+
+            BrowseClanDetailsGUI detailsGUI = new BrowseClanDetailsGUI(plugin, clicker, clan, page);
+            plugin.getGuiManager().openGUI(detailsGUI, clicker);
+
+            plugin.debug("ClanLookupGUI: BrowseClanDetailsGUI opened");
+        }
+
+
+    })
+);
         }
         
         if (page > 1) {

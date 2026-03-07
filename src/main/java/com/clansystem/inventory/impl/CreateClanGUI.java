@@ -1,6 +1,7 @@
 package com.clansystem.inventory.impl;
 
 import com.clansystem.ClanSystem;
+import com.clansystem.data.Clan;
 import com.clansystem.inventory.InventoryButton;
 import com.clansystem.inventory.InventoryGUI;
 import com.cryptomorin.xseries.XMaterial;
@@ -192,6 +193,12 @@ public class CreateClanGUI extends InventoryGUI {
 
                 if (plugin.getClanManager().getClanByName(clanData.name) != null) {
                     plugin.getMessageManager().send(clicker, "clan.clan-exists");
+                    return;
+                }
+
+                Clan existingClan = plugin.getClanManager().getPlayerClan(clicker.getUniqueId());
+                if (existingClan != null && existingClan.isOwner(clicker.getUniqueId())) {
+                    plugin.getMessageManager().send(clicker, "clan.already-owner");
                     return;
                 }
 

@@ -161,6 +161,37 @@ main-menu:
     enabled: true
     material: GRAY_STAINED_GLASS_PANE
     name: ' '
+  
+  items:
+    members:
+      slot: 11
+      material: PLAYER_HEAD
+    
+    stats:
+      slot: 13
+      material: DIAMOND_SWORD
+    
+    join-requests:
+      slot: 9
+      material: WRITABLE_BOOK
+    
+    home:
+      slot: 15
+      material-set: RED_BED
+      material-not-set: WHITE_BED
+    
+    pvp:
+      slot: 20
+      material-enabled: DIAMOND_SWORD
+      material-disabled: WOODEN_SWORD
+    
+    lookup:
+      slot: 22
+      material: COMPASS
+    
+    disband:
+      slot: 26
+      material: TNT
 
 members-menu:
   title: '&#34495EClan Members'
@@ -169,6 +200,11 @@ members-menu:
     enabled: true
     material: GRAY_STAINED_GLASS_PANE
     name: ' '
+  
+  items:
+    back:
+      slot: 49
+      material: ARROW
 
 join-requests-menu:
   title: '&#34495EJoin Requests'
@@ -177,6 +213,34 @@ join-requests-menu:
     enabled: true
     material: GRAY_STAINED_GLASS_PANE
     name: ' '
+  
+  items:
+    request-item:
+      material: PLAYER_HEAD
+      name: '&#3498DB{player}'
+      lore:
+        - '&#95A5A6&m                    '
+        - ''
+        - ' &#ECF0F1Message:'
+        - ' &#95A5A6"{message}"'
+        - ''
+        - ' &#ECF0F1Stats:'
+        - ' &#ECF0F1Kills: &#2ECC71{kills}'
+        - ' &#ECF0F1Deaths: &#E74C3C{deaths}'
+        - ' &#ECF0F1K/D: &#F39C12{kd}'
+        - ''
+        - ' &#ECF0F1Sent: &#95A5A6{time-ago}'
+        - ''
+        - ' &#2ECC71Left-Click to accept'
+        - ' &#E74C3CRight-Click to decline'
+        - ''
+    
+    back:
+      slot: 49
+      material: ARROW
+      name: '&#E74C3C← Back'
+      lore:
+        - '&#95A5A6Return to clan menu'
 
 clan-details:
   title: '&#34495E{clan} Details'

@@ -4,7 +4,11 @@ import com.clansystem.ClanSystem;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -110,6 +114,52 @@ public class PlayerRepository {
                 }
             }
             return invitations;
+        });
+    }
+
+    public CompletableFuture<Void> addPendingNotification(UUID playerUUID, String notificationType, String clanName) {
+        return database.executeAsync(conn -> {
+            try (PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO pending_notifications (player_uuid, notification_type, clan_name, timestamp) VALUES (?, ?, ?, ?)"
+            )) {
+                stmt.setString(1, playerUUID.toString());
+                stmt.setString(2, notificationType);
+                stmt.setString(3, clanName);
+                stmt.setLong(4, System.currentTimeMillis());
+                stmt.executeUpdate();
+                plugin.debug("Added pending notification for " + playerUUID + ": " + notificationType + " from " + clanName);
+            }
+        });
+    }
+
+    public CompletableFuture<List<Map<String, String>>> getPendingNotifications(UUID playerUUID) {
+        return database.executeAsync(conn -> {
+            List<Map<String, String>> notifications = new ArrayList<>();
+            try (PreparedStatement stmt = conn.prepareStatement(
+                "SELECT notification_type, clan_name FROM pending_notifications WHERE player_uuid = ?"
+            )) {
+                stmt.setString(1, playerUUID.toString());
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()) {
+                    Map<String, String> notification = new HashMap<>();
+                    notification.put("type", rs.getString("notification_type"));
+                    notification.put("clan", rs.getString("clan_name"));
+                    notifications.add(notification);
+                }
+            }
+            return notifications;
+        });
+    }
+
+    public CompletableFuture<Void> clearPendingNotifications(UUID playerUUID) {
+        return database.executeAsync(conn -> {
+            try (PreparedStatement stmt = conn.prepareStatement(
+                "DELETE FROM pending_notifications WHERE player_uuid = ?"
+            )) {
+                stmt.setString(1, playerUUID.toString());
+                int deleted = stmt.executeUpdate();
+                plugin.debug("Cleared " + deleted + " pending notifications for " + playerUUID);
+            }
         });
     }
 }

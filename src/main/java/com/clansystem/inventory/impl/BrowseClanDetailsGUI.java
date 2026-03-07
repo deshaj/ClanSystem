@@ -116,13 +116,16 @@ public class BrowseClanDetailsGUI extends InventoryGUI {
                 plugin.debug("BrowseClanDetailsGUI: Send request button clicked by " + clicker.getName());
                 clicker.closeInventory();
                 
-                plugin.getChatInputManager().prompt(clicker, "invitation.prompt-join-message", input -> {
-                    plugin.debug("BrowseClanDetailsGUI: Chat input callback triggered with input: '" + input + "'");
-                    plugin.getInvitationManager().sendJoinRequest(clicker.getUniqueId(), clan, input);
-                    plugin.getFoliaLib().getImpl().runLater(() -> {
-                        plugin.debug("BrowseClanDetailsGUI: Reopening clan lookup GUI");
-                        plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, clicker, returnPage), clicker);
-                    }, 2L);
+                plugin.getFoliaLib().getScheduler().runAtEntity(clicker, task -> {
+                    plugin.debug("BrowseClanDetailsGUI: Scheduling prompt on entity thread");
+                    plugin.getChatInputManager().prompt(clicker, "invitation.prompt-join-message", input -> {
+                        plugin.debug("BrowseClanDetailsGUI: Chat input callback triggered with input: '" + input + "'");
+                        plugin.getInvitationManager().sendJoinRequest(clicker.getUniqueId(), clan, input);
+                        plugin.getFoliaLib().getImpl().runLater(() -> {
+                            plugin.debug("BrowseClanDetailsGUI: Reopening clan lookup GUI");
+                            plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, clicker, returnPage), clicker);
+                        }, 2L);
+                    });
                 });
             })
         );

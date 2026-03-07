@@ -60,47 +60,74 @@ public class InvitationManager {
         plugin.debug("InvitationManager: Creating join request for player " + playerUUID + " to clan " + clan.getName());
         plugin.debug("InvitationManager: Request message: '" + message + "'");
         
-        JoinRequest request = new JoinRequest(
-            UUID.randomUUID(),
-            clan.getId(),
-            playerUUID,
-            message,
-            System.currentTimeMillis(),
-            (long)(System.currentTimeMillis() + (3 * 24 * 60 * 60 * 1000L))
-        );
+        Clan playerClan = plugin.getClanManager().getPlayerClan(playerUUID);
+        if (playerClan != null) {
+            Player requester = Bukkit.getPlayer(playerUUID);
+            if (requester != null) {
+                plugin.getMessageManager().send(requester, "clan.already-in-clan");
+                plugin.getSoundManager().play(requester, "error");
+            }
+            return;
+        }
         
-        clanRequests.computeIfAbsent(clan.getId(), k -> new ArrayList<>()).add(request);
-        plugin.debug("InvitationManager: Request added to clan requests map");
-        
-        plugin.getRequestRepository().addRequest(request).thenAccept(success -> {
-            if (success) {
-                plugin.debug("InvitationManager: Request saved to database successfully");
+        plugin.getRequestRepository().hasRequest(playerUUID, clan.getId()).thenAccept(hasRequest -> {
+            if (hasRequest) {
+                Player requester = Bukkit.getPlayer(playerUUID);
+                if (requester != null) {
+                    plugin.getFoliaLib().getImpl().runLater(() -> {
+                        plugin.getMessageManager().send(requester, "invitation.already-requested");
+                        plugin.getSoundManager().play(requester, "error");
+                    }, 1L);
+                }
+                return;
+            }
+            
+            JoinRequest request = new JoinRequest(
+                UUID.randomUUID(),
+                clan.getId(),
+                playerUUID,
+                message,
+                System.currentTimeMillis(),
+                (long)(System.currentTimeMillis() + (3 * 24 * 60 * 60 * 1000L))
+            );
+            
+            clanRequests.computeIfAbsent(clan.getId(), k -> new ArrayList<>()).add(request);
+            plugin.debug("InvitationManager: Request added to clan requests map");
+            
+            plugin.getRequestRepository().addRequest(playerUUID, clan.getId(), message, System.currentTimeMillis()).thenAccept(success -> {
+                if (success) {
+                    plugin.debug("InvitationManager: Request saved to database successfully");
+                } else {
+                    plugin.warn("InvitationManager: Failed to save request to database!");
+                }
+            });
+            
+            Player requester = Bukkit.getPlayer(playerUUID);
+            if (requester != null) {
+                plugin.debug("InvitationManager: Sending confirmation to requester");
+                plugin.getFoliaLib().getImpl().runLater(() -> {
+                    Map<String, String> placeholders = new HashMap<>();
+                    placeholders.put("clan", clan.getName());
+                    plugin.getMessageManager().send(requester, "invitation.request-sent", placeholders);
+                    plugin.getSoundManager().play(requester, "invite-send");
+                }, 1L);
+            }
+
+            Player owner = Bukkit.getPlayer(clan.getOwner());
+            if (owner != null && owner.isOnline()) {
+                plugin.debug("InvitationManager: Notifying clan owner");
+                String playerName = requester != null ? requester.getName() : "Unknown";
+                plugin.getFoliaLib().getImpl().runLater(() -> {
+                    Map<String, String> placeholders = new HashMap<>();
+                    placeholders.put("player", playerName);
+                    placeholders.put("clan", clan.getName());
+                    plugin.getMessageManager().send(owner, "invitation.request-received", placeholders);
+                    plugin.getSoundManager().play(owner, "invite-receive");
+                }, 1L);
             } else {
-                plugin.warn("InvitationManager: Failed to save request to database!");
+                plugin.debug("InvitationManager: Clan owner not online");
             }
         });
-        
-        Player requester = Bukkit.getPlayer(playerUUID);
-        if (requester != null) {
-            plugin.debug("InvitationManager: Sending confirmation to requester");
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("clan", clan.getName());
-            plugin.getMessageManager().send(requester, "invitation.request-sent", placeholders);
-            plugin.getSoundManager().play(requester, "invite-send");
-        }
-
-        Player owner = Bukkit.getPlayer(clan.getOwner());
-        if (owner != null && owner.isOnline()) {
-            plugin.debug("InvitationManager: Notifying clan owner");
-            String playerName = requester != null ? requester.getName() : "Unknown";
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("player", playerName);
-            placeholders.put("clan", clan.getName());
-            plugin.getMessageManager().send(owner, "invitation.request-received", placeholders);
-            plugin.getSoundManager().play(owner, "invite-receive");
-        } else {
-            plugin.debug("InvitationManager: Clan owner not online");
-        }
     }
     
     public boolean hasInvitation(UUID playerUUID, UUID clanId) {
@@ -174,6 +201,15 @@ public class InvitationManager {
             
             if (!invitations.isEmpty()) {
                 playerInvitations.put(playerUUID, invitations);
+            }
+        });
+    }
+
+    public CompletableFuture<Void> loadClanRequests(UUID clanId) {
+        return plugin.getRequestRepository().getFullRequestsForClan(clanId).thenAccept(requests -> {
+            if (!requests.isEmpty()) {
+                clanRequests.put(clanId, new ArrayList<>(requests));
+                plugin.debug("InvitationManager: Loaded " + requests.size() + " requests for clan " + clanId);
             }
         });
     }

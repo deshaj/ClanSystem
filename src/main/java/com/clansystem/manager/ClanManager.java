@@ -116,6 +116,7 @@ public class ClanManager {
         plugin.debug("Added member " + player.getName() + " to clan " + clan.getName());
         
         return plugin.getPlayerDataManager().setPlayerClan(player.getUniqueId(), clan.getId())
+            .thenCompose(v -> plugin.getRequestRepository().removeAllRequestsByPlayer(player.getUniqueId()))
             .thenCompose(v -> repository.saveClan(clan));
     }
     

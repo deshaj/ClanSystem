@@ -6,11 +6,14 @@ import com.clansystem.data.ClanMember;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PlayerListener implements Listener {
@@ -29,6 +32,25 @@ public class PlayerListener implements Listener {
                 plugin.debug("Loaded clan data for " + player.getName() + ": " + clanId);
             }
         });
+        
+        plugin.getPlayerRepository().getPendingNotifications(player.getUniqueId()).thenAccept(notifications -> {
+            if (!notifications.isEmpty()) {
+                plugin.getFoliaLib().getScheduler().runAtEntity(player, task -> {
+                    for (Map<String, String> notification : notifications) {
+                        String type = notification.get("type");
+                        String clanName = notification.get("clan");
+                        
+                        if ("ACCEPTED".equals(type)) {
+                            plugin.getMessageManager().send(player, "invitation.accepted", Map.of("clan", clanName));
+                        } else if ("DECLINED".equals(type)) {
+                            plugin.getMessageManager().send(player, "invitation.declined", Map.of("clan", clanName));
+                        }
+                    }
+                    
+                    plugin.getPlayerRepository().clearPendingNotifications(player.getUniqueId());
+                });
+            }
+        });
     }
     
     @EventHandler
@@ -37,6 +59,25 @@ public class PlayerListener implements Listener {
         plugin.getPlayerDataManager().clearCache(player.getUniqueId());
     }
     
+    @EventHandler
+    public void onEntityDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player)) return;
+        if (!(event.getDamager() instanceof Player)) return;
+
+        Player victim = (Player) event.getEntity();
+        Player damager = (Player) event.getDamager();
+
+        Clan victimClan = plugin.getClanManager().getPlayerClan(victim.getUniqueId());
+        Clan damagerClan = plugin.getClanManager().getPlayerClan(damager.getUniqueId());
+
+        if (victimClan != null && damagerClan != null && victimClan.getId().equals(damagerClan.getId())) {
+            if (!victimClan.isPvpEnabled()) {
+                event.setCancelled(true);
+                plugin.debug("Cancelled PvP between clan members: " + damager.getName() + " -> " + victim.getName());
+            }
+        }
+    }
+
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();

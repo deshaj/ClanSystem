@@ -45,6 +45,16 @@ public class JoinRequest {
         this.expired = false;
     }
 
+    public JoinRequest(UUID playerId, UUID clanId, String message, long timestamp) {
+        this.id = UUID.randomUUID();
+        this.playerId = playerId;
+        this.clanId = clanId;
+        this.message = message;
+        this.timestamp = timestamp;
+        this.createdAt = timestamp;
+        this.expired = false;
+    }
+
     public double getKD() {
         if (deaths == 0) return kills;
         return Math.round((double) kills / deaths * 100.0) / 100.0;

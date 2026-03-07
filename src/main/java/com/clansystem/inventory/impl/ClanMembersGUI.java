@@ -68,11 +68,13 @@ public class ClanMembersGUI extends InventoryGUI {
             );
         }
         
-        addButton(49, new InventoryButton()
+        int backSlot = plugin.getConfigManager().getInt("gui.members-menu.items.back.slot", 49);
+        String backMaterial = plugin.getConfigManager().getString("gui.members-menu.items.back.material", "ARROW");
+        addButton(backSlot, new InventoryButton()
             .creator(p -> {
                 String name = plugin.getMessageManager().getMessage("gui.items.back.name");
                 List<String> lore = plugin.getMessageManager().getLore("gui.items.back.lore");
-                return createItemWithLore("ARROW", name, lore);
+                return createItemWithLore(backMaterial, name, lore);
             })
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
@@ -101,8 +103,9 @@ public class ClanMembersGUI extends InventoryGUI {
 
         List<Integer> fillerSlots = plugin.getConfigManager().getIntList("gui.members-menu.filler.slots");
         if (fillerSlots.isEmpty()) {
+            int backSlot = plugin.getConfigManager().getInt("gui.members-menu.items.back.slot", 49);
             for (int i = 45; i < 54; i++) {
-                if (i != 49) {
+                if (i != backSlot) {
                     getInventory().setItem(i, filler);
                 }
             }
