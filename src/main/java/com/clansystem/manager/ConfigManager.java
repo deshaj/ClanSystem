@@ -66,6 +66,10 @@ public class ConfigManager {
         return config.getStringList(path);
     }
 
+    public List<Integer> getIntList(String path) {
+        return config.getIntegerList(path);
+    }
+
     public boolean getBoolean(String path, boolean def) {
         return config.getBoolean(path, def);
     }

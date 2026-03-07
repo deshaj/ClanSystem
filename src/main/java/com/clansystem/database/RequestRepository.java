@@ -1,6 +1,7 @@
 package com.clansystem.database;
 
 import com.clansystem.ClanSystem;
+import com.clansystem.data.JoinRequest;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,16 +19,19 @@ public class RequestRepository {
         this.database = database;
     }
 
-    public CompletableFuture<Void> addRequest(UUID playerUUID, UUID clanId) {
+    public CompletableFuture<Boolean> addRequest(UUID playerUUID, UUID clanId, String message, long timestamp) {
         return database.executeAsync(conn -> {
             try (PreparedStatement stmt = conn.prepareStatement(
-                "INSERT OR IGNORE INTO join_requests (player_uuid, clan_id) VALUES (?, ?)"
+                "INSERT OR IGNORE INTO join_requests (player_uuid, clan_id, message, timestamp) VALUES (?, ?, ?, ?)"
             )) {
                 stmt.setString(1, playerUUID.toString());
                 stmt.setString(2, clanId.toString());
-                stmt.executeUpdate();
+                stmt.setString(3, message);
+                stmt.setLong(4, timestamp);
+                int rows = stmt.executeUpdate();
+                plugin.debug("Added join request: " + playerUUID + " -> " + clanId + " with message: " + message);
+                return rows > 0;
             }
-            plugin.debug("Added join request: " + playerUUID + " -> " + clanId);
         });
     }
 
@@ -69,6 +73,27 @@ public class RequestRepository {
                     requests.add(UUID.fromString(rs.getString("player_uuid")));
                 }
             }
+            return requests;
+        });
+    }
+
+    public CompletableFuture<Set<JoinRequest>> getFullRequestsForClan(UUID clanId) {
+        return database.executeAsync(conn -> {
+            Set<JoinRequest> requests = new HashSet<>();
+            try (PreparedStatement stmt = conn.prepareStatement(
+                "SELECT player_uuid, clan_id, message, timestamp FROM join_requests WHERE clan_id = ?"
+            )) {
+                stmt.setString(1, clanId.toString());
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()) {
+                    UUID playerUUID = UUID.fromString(rs.getString("player_uuid"));
+                    UUID storedClanId = UUID.fromString(rs.getString("clan_id"));
+                    String message = rs.getString("message");
+                    long timestamp = rs.getLong("timestamp");
+                    requests.add(new JoinRequest(playerUUID, storedClanId, message, timestamp));
+                }
+            }
+            plugin.debug("Loaded " + requests.size() + " full requests for clan " + clanId);
             return requests;
         });
     }

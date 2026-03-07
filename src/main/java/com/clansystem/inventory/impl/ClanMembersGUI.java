@@ -99,9 +99,18 @@ public class ClanMembersGUI extends InventoryGUI {
             filler.setItemMeta(meta);
         }
 
-        for (int i = 45; i < 54; i++) {
-            if (i != 49) {
-                getInventory().setItem(i, filler);
+        List<Integer> fillerSlots = plugin.getConfigManager().getIntList("gui.members-menu.filler.slots");
+        if (fillerSlots.isEmpty()) {
+            for (int i = 45; i < 54; i++) {
+                if (i != 49) {
+                    getInventory().setItem(i, filler);
+                }
+            }
+        } else {
+            for (int slot : fillerSlots) {
+                if (slot >= 0 && slot < getInventory().getSize()) {
+                    getInventory().setItem(slot, filler);
+                }
             }
         }
     }

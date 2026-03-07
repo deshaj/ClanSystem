@@ -43,9 +43,12 @@ public class GUIManager {
     public void handleClick(InventoryClickEvent event) {
         InventoryHandler handler = this.activeInventories.get(event.getInventory());
         if (handler != null) {
-            Player player = (Player) event.getWhoClicked();
-            plugin.getSoundManager().playClick(player);
             handler.onClick(event);
+            
+            if (event.getCurrentItem() != null && event.getCurrentItem().getType() != org.bukkit.Material.AIR) {
+                Player player = (Player) event.getWhoClicked();
+                plugin.getSoundManager().playClick(player);
+            }
         }
     }
     

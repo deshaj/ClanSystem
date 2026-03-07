@@ -77,8 +77,7 @@ public class ConfirmKickGUI extends InventoryGUI {
                 "&7Go back"))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
-                plugin.getSoundManager().play(clicker, "gui-click");
-                plugin.getGuiManager().openGUI(new PromoteDemoteGUI(plugin, clan, targetMember), clicker);
+                plugin.getGuiManager().openGUI(new PromoteDemoteGUI(plugin, clan, targetMember), clicker, false);
             })
         );
         

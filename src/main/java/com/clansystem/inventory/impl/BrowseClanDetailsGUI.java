@@ -46,6 +46,9 @@ public class BrowseClanDetailsGUI extends InventoryGUI {
     }
 
     private void addFillerGlass() {
+        boolean enabled = plugin.getConfigManager().getBoolean("gui.browse-clan-details.filler.enabled", true);
+        if (!enabled) return;
+
         String materialName = plugin.getConfigManager().getString("gui.browse-clan-details.filler.material", "GRAY_STAINED_GLASS_PANE");
         String name = plugin.getConfigManager().getString("gui.browse-clan-details.filler.name", " ");
         
@@ -58,9 +61,18 @@ public class BrowseClanDetailsGUI extends InventoryGUI {
             filler.setItemMeta(meta);
         }
 
-        for (int i = 0; i < getInventory().getSize(); i++) {
-            if (i != 11 && i != 13 && i != 15 && i != 22) {
-                getInventory().setItem(i, filler);
+        List<Integer> fillerSlots = plugin.getConfigManager().getIntList("gui.browse-clan-details.filler.slots");
+        if (fillerSlots.isEmpty()) {
+            for (int i = 0; i < getInventory().getSize(); i++) {
+                if (i != 11 && i != 13 && i != 15 && i != 22) {
+                    getInventory().setItem(i, filler);
+                }
+            }
+        } else {
+            for (int slot : fillerSlots) {
+                if (slot >= 0 && slot < getInventory().getSize()) {
+                    getInventory().setItem(slot, filler);
+                }
             }
         }
     }
@@ -101,13 +113,17 @@ public class BrowseClanDetailsGUI extends InventoryGUI {
             .creator(p -> createItem(materialName, name, lore))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
+                plugin.debug("BrowseClanDetailsGUI: Send request button clicked by " + clicker.getName());
                 clicker.closeInventory();
                 
-                plugin.getMessageManager().send(clicker, "gui.join-request-prompt");
-                plugin.getClanChatManager().setSendingJoinRequest(clicker.getUniqueId(), clan.getId());
-                
-                XSound.matchXSound(plugin.getConfigManager().getString("sounds.click", "UI_BUTTON_CLICK"))
-                    .ifPresent(sound -> sound.play(clicker));
+                plugin.getChatInputManager().prompt(clicker, "invitation.prompt-join-message", input -> {
+                    plugin.debug("BrowseClanDetailsGUI: Chat input callback triggered with input: '" + input + "'");
+                    plugin.getInvitationManager().sendJoinRequest(clicker.getUniqueId(), clan, input);
+                    plugin.getFoliaLib().getImpl().runLater(() -> {
+                        plugin.debug("BrowseClanDetailsGUI: Reopening clan lookup GUI");
+                        plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, clicker, returnPage), clicker);
+                    }, 2L);
+                });
             })
         );
     }
@@ -122,10 +138,7 @@ public class BrowseClanDetailsGUI extends InventoryGUI {
             .creator(p -> createItem(materialName, name, lore))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
-                clicker.closeInventory();
-                
-                ClanLookupGUI lookupGUI = new ClanLookupGUI(plugin, clicker, returnPage);
-                plugin.getGuiManager().openGUI(lookupGUI, clicker);
+                plugin.getGuiManager().openGUI(new ClanLookupGUI(plugin, clicker, returnPage), clicker, false);
             })
         );
     }

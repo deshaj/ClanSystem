@@ -149,10 +149,7 @@ public class InvitationsGUI extends InventoryGUI {
             .creator(p -> createItem(materialName, name, lore))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
-                clicker.closeInventory();
-                
-                NoClanGUI noClanGUI = new NoClanGUI(plugin, clicker);
-                plugin.getGuiManager().openGUI(noClanGUI, clicker);
+                plugin.getGuiManager().openGUI(new NoClanGUI(plugin, clicker), clicker, false);
             })
         );
     }

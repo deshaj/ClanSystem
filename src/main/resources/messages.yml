@@ -55,10 +55,14 @@ invite:
 invitation:
   request-sent: '{icon_success} &#2ECC71Join request sent to &f{clan}&#2ECC71!'
   request-received: '{icon_info} &#F39C12{player} &#95A5A6sent a join request to &f{clan}&#95A5A6!'
+  request-failed: '{icon_error} &#E74C3CFailed to send join request. Please try again later.'
+  already-requested: '{icon_warning} &#E67E22You already sent a join request to &f{clan}&#E67E22!'
+  clan-full: '{icon_error} &#E74C3CThat clan is full and cannot accept more requests!'
   accepted: '{icon_success} &#2ECC71Your join request to &f{clan} &#2ECC71was accepted!'
   declined: '{icon_error} &#E74C3CYour join request to &f{clan} &#E74C3Cwas declined.'
   expired: '{icon_info} &#95A5A6Your invitation from &f{clan} &#95A5A6has expired.'
-  prompt-clan-name: '{icon_info} &#F39C12Type the clan name in chat to create your clan!'
+  prompt-clan-name: '{icon_info} &#F39C12Type the clan name in chat (or type &#E74C3Ccancel &#F39C12to go back)!'
+  prompt-clan-tag: '{icon_info} &#F39C12Type your clan tag in chat (or type &#E74C3Ccancel &#F39C12to go back)!'
   prompt-join-message: '{icon_info} &#F39C12Type your join message in chat (why should they accept you?)'
   cancelled: '{icon_info} &#95A5A6Action cancelled.'
   
@@ -122,6 +126,9 @@ gui:
   lookup-title: '&#34495EBrowse Clans &#95A5A6({page}/{pages})'
   confirm-kick-title: '&#34495EConfirm Kick'
   promote-demote-title: '&#34495EManage {player}'
+  
+  join-request-accepted: '{icon_success} &#2ECC71Accepted join request from &f{player}&#2ECC71!'
+  join-request-declined: '{icon_info} &#95A5A6Declined join request from &f{player}&#95A5A6.'
   
   items:
     join-requests:

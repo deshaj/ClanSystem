@@ -116,7 +116,7 @@ public class PromoteDemoteGUI extends InventoryGUI {
             .creator(p -> createItem("ARROW", "&cBack", "&7Return to members list"))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
-                plugin.getGuiManager().openGUI(new ClanMembersGUI(plugin, clan), clicker);
+                plugin.getGuiManager().openGUI(new ClanMembersGUI(plugin, clan), clicker, false);
             })
         );
         

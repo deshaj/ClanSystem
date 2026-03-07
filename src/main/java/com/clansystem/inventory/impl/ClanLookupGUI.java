@@ -106,7 +106,7 @@ public class ClanLookupGUI extends InventoryGUI {
                     ClanLookupGUI lookupGUI = playerContext != null ? 
                         new ClanLookupGUI(plugin, playerContext, page - 1) : 
                         new ClanLookupGUI(plugin, page - 1);
-                    plugin.getGuiManager().openGUI(lookupGUI, clicker);
+                    plugin.getGuiManager().openGUI(lookupGUI, clicker, false);
                 })
             );
         }
@@ -119,7 +119,7 @@ public class ClanLookupGUI extends InventoryGUI {
                     ClanLookupGUI lookupGUI = playerContext != null ? 
                         new ClanLookupGUI(plugin, playerContext, page + 1) : 
                         new ClanLookupGUI(plugin, page + 1);
-                    plugin.getGuiManager().openGUI(lookupGUI, clicker);
+                    plugin.getGuiManager().openGUI(lookupGUI, clicker, false);
                 })
             );
         }
@@ -129,7 +129,7 @@ public class ClanLookupGUI extends InventoryGUI {
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
                 if (playerContext != null) {
-                    plugin.getGuiManager().openGUI(new NoClanGUI(plugin, clicker), clicker);
+                    plugin.getGuiManager().openGUI(new NoClanGUI(plugin, clicker), clicker, false);
                 } else {
                     clicker.closeInventory();
                 }

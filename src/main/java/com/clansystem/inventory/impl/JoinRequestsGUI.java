@@ -64,8 +64,17 @@ public class JoinRequestsGUI extends InventoryGUI {
             filler.setItemMeta(meta);
         }
 
-        for (int i = 45; i < 54; i++) {
-            getInventory().setItem(i, filler);
+        List<Integer> fillerSlots = plugin.getConfigManager().getIntList("gui.join-requests-menu.filler.slots");
+        if (fillerSlots.isEmpty()) {
+            for (int i = 45; i < 54; i++) {
+                getInventory().setItem(i, filler);
+            }
+        } else {
+            for (int slot : fillerSlots) {
+                if (slot >= 0 && slot < getInventory().getSize()) {
+                    getInventory().setItem(slot, filler);
+                }
+            }
         }
     }
 
@@ -173,10 +182,7 @@ public class JoinRequestsGUI extends InventoryGUI {
             .creator(p -> createItem(materialName, name, lore))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
-                clicker.closeInventory();
-
-                ClanMainGUI mainGUI = new ClanMainGUI(plugin, clan);
-                plugin.getGuiManager().openGUI(mainGUI, clicker);
+                plugin.getGuiManager().openGUI(new ClanMainGUI(plugin, clan), clicker, false);
             })
         );
     }

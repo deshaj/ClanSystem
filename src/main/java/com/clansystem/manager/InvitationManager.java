@@ -57,6 +57,9 @@ public class InvitationManager {
     }
 
     public void sendJoinRequest(UUID playerUUID, Clan clan, String message) {
+        plugin.debug("InvitationManager: Creating join request for player " + playerUUID + " to clan " + clan.getName());
+        plugin.debug("InvitationManager: Request message: '" + message + "'");
+        
         JoinRequest request = new JoinRequest(
             UUID.randomUUID(),
             clan.getId(),
@@ -67,22 +70,36 @@ public class InvitationManager {
         );
         
         clanRequests.computeIfAbsent(clan.getId(), k -> new ArrayList<>()).add(request);
+        plugin.debug("InvitationManager: Request added to clan requests map");
+        
+        plugin.getRequestRepository().addRequest(request).thenAccept(success -> {
+            if (success) {
+                plugin.debug("InvitationManager: Request saved to database successfully");
+            } else {
+                plugin.warn("InvitationManager: Failed to save request to database!");
+            }
+        });
         
         Player requester = Bukkit.getPlayer(playerUUID);
         if (requester != null) {
+            plugin.debug("InvitationManager: Sending confirmation to requester");
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("clan", clan.getName());
-            plugin.getMessageManager().send(requester, "request.sent", placeholders);
+            plugin.getMessageManager().send(requester, "invitation.request-sent", placeholders);
             plugin.getSoundManager().play(requester, "invite-send");
         }
 
         Player owner = Bukkit.getPlayer(clan.getOwner());
         if (owner != null && owner.isOnline()) {
+            plugin.debug("InvitationManager: Notifying clan owner");
             String playerName = requester != null ? requester.getName() : "Unknown";
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("player", playerName);
-            plugin.getMessageManager().send(owner, "request.received", placeholders);
+            placeholders.put("clan", clan.getName());
+            plugin.getMessageManager().send(owner, "invitation.request-received", placeholders);
             plugin.getSoundManager().play(owner, "invite-receive");
+        } else {
+            plugin.debug("InvitationManager: Clan owner not online");
         }
     }
     

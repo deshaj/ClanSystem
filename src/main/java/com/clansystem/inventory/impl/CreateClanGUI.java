@@ -10,11 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class CreateClanGUI extends InventoryGUI {
     private final ClanSystem plugin;
@@ -62,9 +58,18 @@ public class CreateClanGUI extends InventoryGUI {
             filler.setItemMeta(meta);
         }
 
-        for (int i = 0; i < getInventory().getSize(); i++) {
-            if (i != 11 && i != 13 && i != 15 && i != 22) {
-                getInventory().setItem(i, filler);
+        List<Integer> fillerSlots = plugin.getConfigManager().getIntList("gui.create-clan.filler.slots");
+        if (fillerSlots.isEmpty()) {
+            for (int i = 0; i < getInventory().getSize(); i++) {
+                if (i != 11 && i != 13 && i != 15 && i != 22) {
+                    getInventory().setItem(i, filler);
+                }
+            }
+        } else {
+            for (int slot : fillerSlots) {
+                if (slot >= 0 && slot < getInventory().getSize()) {
+                    getInventory().setItem(slot, filler);
+                }
             }
         }
     }
@@ -80,12 +85,18 @@ public class CreateClanGUI extends InventoryGUI {
         for (String line : lore) {
             finalLore.add(line.replace("{name}", data.name != null ? data.name : "&#E74C3CNot Set"));
         }
+        
+        if (data.name != null) {
+            finalLore.add("");
+            finalLore.add("&#2ECC71Current: &#F1C40F" + data.name);
+        }
 
         addButton(slot, new InventoryButton()
-            .creator(p -> createItem(materialName, name, finalLore))
+            .creator(p -> createItemWithEnchant(materialName, name, finalLore, data.name != null))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
                 clicker.closeInventory();
+                plugin.getSoundManager().playClick(clicker);
                 
                 plugin.getChatInputManager().prompt(clicker, "invitation.prompt-clan-name", input -> {
                     ClanData clanData = pendingClans.get(clicker.getUniqueId());
@@ -112,15 +123,20 @@ public class CreateClanGUI extends InventoryGUI {
         for (String line : lore) {
             finalLore.add(line.replace("{tag}", currentTag));
         }
+        
+        if (data.tag != null) {
+            finalLore.add("");
+            finalLore.add("&#2ECC71Current: &#F1C40F" + data.tag);
+        }
 
         addButton(slot, new InventoryButton()
-            .creator(p -> createItem(materialName, name, finalLore))
+            .creator(p -> createItemWithEnchant(materialName, name, finalLore, data.tag != null))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
                 clicker.closeInventory();
+                plugin.getSoundManager().playClick(clicker);
                 
-                clicker.sendMessage(plugin.getMessageManager().format("&#F39C12Type your clan tag in chat (or 'cancel' to go back)"));
-                plugin.getChatInputManager().prompt(clicker, "", input -> {
+                plugin.getChatInputManager().prompt(clicker, "invitation.prompt-clan-tag", input -> {
                     ClanData clanData = pendingClans.get(clicker.getUniqueId());
                     if (clanData != null) {
                         clanData.tag = input;
@@ -226,6 +242,23 @@ public class CreateClanGUI extends InventoryGUI {
             item.setItemMeta(meta);
         }
 
+        return item;
+    }
+    
+    private ItemStack createItemWithEnchant(String materialName, String name, List<String> lore, boolean enchanted) {
+        ItemStack item = createItem(materialName, name, lore);
+        
+        if (enchanted) {
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                com.cryptomorin.xseries.XEnchantment.matchXEnchantment("UNBREAKING").ifPresent(e -> 
+                    meta.addEnchant(e.getEnchant(), 1, true)
+                );
+                com.cryptomorin.xseries.XItemFlag.of("HIDE_ENCHANTS").ifPresent(flag -> flag.set(meta));
+                item.setItemMeta(meta);
+            }
+        }
+        
         return item;
     }
 

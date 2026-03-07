@@ -63,6 +63,7 @@ public final class ClanSystem extends JavaPlugin {
         this.requestRepository = new RequestRepository(this, database);
         this.guiManager = new GUIManager(this);
         this.invitationManager = new InvitationManager(this, playerRepository);
+        this.chatInputManager = new ChatInputManager(this);
         
         registerListeners();
         registerCommands();

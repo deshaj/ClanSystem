@@ -210,9 +210,18 @@ public class ClanMainGUI extends InventoryGUI {
             filler.setItemMeta(meta);
         }
 
-        for (int i = 0; i < getInventory().getSize(); i++) {
-            if (i != 9 && i != 11 && i != 13 && i != 15 && i != 20 && i != 22 && i != 26) {
-                getInventory().setItem(i, filler);
+        List<Integer> fillerSlots = plugin.getConfigManager().getIntList("gui.main-menu.filler.slots");
+        if (fillerSlots.isEmpty()) {
+            for (int i = 0; i < getInventory().getSize(); i++) {
+                if (i != 9 && i != 11 && i != 13 && i != 15 && i != 20 && i != 22 && i != 26) {
+                    getInventory().setItem(i, filler);
+                }
+            }
+        } else {
+            for (int slot : fillerSlots) {
+                if (slot >= 0 && slot < getInventory().getSize()) {
+                    getInventory().setItem(slot, filler);
+                }
             }
         }
     }

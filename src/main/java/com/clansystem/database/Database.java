@@ -108,6 +108,8 @@ public class Database {
                 "CREATE TABLE IF NOT EXISTS join_requests (" +
                 "player_uuid VARCHAR(36) NOT NULL, " +
                 "clan_id VARCHAR(36) NOT NULL, " +
+                "message TEXT, " +
+                "timestamp BIGINT NOT NULL, " +
                 "PRIMARY KEY (player_uuid, clan_id)" +
                 ")"
             };

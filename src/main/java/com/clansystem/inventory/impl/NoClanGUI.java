@@ -42,6 +42,9 @@ public class NoClanGUI extends InventoryGUI {
     }
 
     private void addFillerGlass() {
+        boolean enabled = plugin.getConfigManager().getBoolean("gui.no-clan.filler.enabled", true);
+        if (!enabled) return;
+
         String materialName = plugin.getConfigManager().getString("gui.no-clan.filler.material", "GRAY_STAINED_GLASS_PANE");
         String name = plugin.getConfigManager().getString("gui.no-clan.filler.name", " ");
         
@@ -54,9 +57,18 @@ public class NoClanGUI extends InventoryGUI {
             filler.setItemMeta(meta);
         }
 
-        for (int i = 0; i < getInventory().getSize(); i++) {
-            if (i != 0 && i != 11 && i != 15) {
-                getInventory().setItem(i, filler);
+        List<Integer> fillerSlots = plugin.getConfigManager().getIntList("gui.no-clan.filler.slots");
+        if (fillerSlots.isEmpty()) {
+            for (int i = 0; i < getInventory().getSize(); i++) {
+                if (i != 0 && i != 11 && i != 15) {
+                    getInventory().setItem(i, filler);
+                }
+            }
+        } else {
+            for (int slot : fillerSlots) {
+                if (slot >= 0 && slot < getInventory().getSize()) {
+                    getInventory().setItem(slot, filler);
+                }
             }
         }
     }
